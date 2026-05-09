@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>Habit Tracker</title>
+  <style>
+    /* ═══════════════════════════════════════
+       RESET + DESIGN SYSTEM
+    ═══════════════════════════════════════ */
+    * {
+      margin: 0; padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    :root {
+      --white:   #FFFFFF;
+      --surface: #F7F7F4;
+      --border:  #EFEFEB;
+      --muted:   #BBBBBB;
+      --text:    #1A1A1A;
+      --radius-card: 12px;
+      --radius-btn:  14px;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    body {
+      font-family: var(--font);
+      background: var(--surface);
+      color: var(--text);
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── TOP BAR ── */
+    #top-bar {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 18px 12px;
+      flex-shrink: 0;
+    }
+    #top-bar .title    { font-size: 18px; font-weight: 500; }
+    #top-bar .subtitle { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* ── CONTENT ── */
+    #content {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 14px;
+    }
+    #content::-webkit-scrollbar { display: none; }
+
+    /* ── SCREENS ── */
+    .screen        { display: none; }
+    .screen.active { display: block; }
+
+    /* ── BOTTOM NAV ── */
+    #bottom-nav {
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-shrink: 0;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .nav-btn {
+      flex: 1; background: none; border: none;
+      padding: 10px 0 12px; cursor: pointer;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 3px;
+      font-size: 10px; font-family: var(--font);
+      color: var(--muted); transition: color 0.15s;
+    }
+    .nav-btn .nav-icon { font-size: 20px; line-height: 1; }
+    .nav-btn.active    { color: var(--text); }
+
+    /* ═══════════════════════════════════════
+       LOADING SCREEN
+       Shows while app is fetching data
+       from Google Sheets on startup.
+    ═══════════════════════════════════════ */
+    #loading-screen {
+      position: fixed;
+      inset: 0; /* covers the whole screen */
+      background: var(--white);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 999;
+    }
+    #loading-screen .loading-icon {
+      font-size: 48px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    #loading-screen .loading-text {
+      font-size: 14px;
+      color: var(--muted);
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(1.1); }
+    }
+
+    /* ═══════════════════════════════════════
+       LOGIN SCREEN
+       Shows when user is not signed in.
+    ═══════════════════════════════════════ */
+    #login-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--white);
+      display: none; /* hidden until needed */
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      gap: 20px;
+      z-index: 998;
+    }
+    #login-screen .app-icon  { font-size: 64px; }
+    #login-screen .app-title {
+      font-size: 24px; font-weight: 500;
+      color: var(--text);
+    }
+    #login-screen .app-sub {
+      font-size: 13px; color: var(--muted);
+      text-align: center; line-height: 1.6;
+    }
+    .google-btn {
+      width: 100%;
+      max-width: 280px;
+      background: var(--text);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-btn);
+      padding: 14px 20px;
+      font-size: 15px;
+      font-weight: 500;
+      font-family: var(--font);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    /* ═══════════════════════════════════════
+       TODAY SCREEN
+    ═══════════════════════════════════════ */
+    .section-label {
+      font-size: 10px; font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .habit-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 13px 13px 11px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .habit-card:active { transform: scale(0.99); }
+    .card-top {
+      display: flex; align-items: center;
+      gap: 10px; margin-bottom: 10px;
+    }
+    .card-icon { width: 40px; height: 40px; flex-shrink: 0; }
+    .card-icon svg { width: 100%; height: 100%; }
+    .card-info { flex: 1; min-width: 0; }
+    .card-name   { font-size: 14px; font-weight: 500; }
+    .card-streak { font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .card-check {
+      width: 24px; height: 24px; border-radius: 50%;
+      border: 1.5px solid var(--border);
+      display: flex; align-items: center;
+      justify-content: center;
+      font-size: 11px; color: var(--white);
+      flex-shrink: 0; transition: all 0.2s;
+    }
+    .card-check.logged { background: var(--text); border-color: var(--text); }
+
+    /* ── CONTRIBUTION GRID ── */
+    .grid-wrap { display: flex; flex-direction: column; gap: 2px; }
+    .grid-row  { display: flex; gap: 2px; }
+    .grid-cell { flex: 1; height: 8px; border-radius: 2px; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      text-align: center; padding: 48px 20px;
+      color: var(--muted);
+    }
+    .empty-state .empty-icon  { font-size: 40px; margin-bottom: 12px; }
+    .empty-state .empty-title {
+      font-size: 15px; font-weight: 500;
+      color: var(--text); margin-bottom: 6px;
+    }
+
+    /* ── ERROR BANNER ── */
+    .error-banner {
+      background: #FEE2E2; border: 1px solid #FCA5A5;
+      border-radius: var(--radius-card);
+      padding: 12px 14px; margin-bottom: 12px;
+      font-size: 12px; color: #7F1D1D;
+      display: none;
+    }
+
+    /* ── USER BAR (top right) ── */
+    .top-bar-inner {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+    .user-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex; align-items: center;
+      justify-content: center;
+      font-size: 12px; cursor: pointer;
+      flex-shrink: 0; overflow: hidden;
+    }
+    .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════
+       LOADING SCREEN
+       Shows while checking if user is
+       signed in and loading their data.
+  ═══════════════════════════════════════ -->
+  <div id="loading-screen">
+    <div class="loading-icon">🌙</div>
+    <div class="loading-text">Loading your habits...</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       LOGIN SCREEN
+       Shows when user is not signed in.
+  ═══════════════════════════════════════ -->
+  <div id="login-screen">
+    <div class="app-icon">✨</div>
+    <div class="app-title">Habit Tracker</div>
+    <div class="app-sub">
+      Track your daily habits beautifully.<br>
+      Sign in to keep your data safe and private.
+    </div>
+    <button class="google-btn" onclick="signIn()">
+      <span>G</span>
+      <span>Sign in with Google</span>
+    </button>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       MAIN APP (shown after login)
+  ═══════════════════════════════════════ -->
+  <div id="top-bar">
+    <div class="top-bar-inner">
+      <div>
+        <div class="title"  id="top-bar-title">My habits</div>
+        <div class="subtitle" id="top-bar-sub">Loading...</div>
+      </div>
+      <div class="user-avatar" id="user-avatar" onclick="showUserMenu()">
+        👤
+      </div>
+    </div>
+  </div>
+
+  <div id="content">
+
+    <!-- SCREEN 1: Today -->
+    <div class="screen active" id="screen-today">
+      <div class="error-banner" id="error-banner">
+        ⚠️ Could not load habits. Check your connection.
+      </div>
+      <div class="section-label">Today's habits</div>
+      <div id="today-cards">
+        <!-- Cards built by JavaScript -->
+      </div>
+    </div>
+
+    <!-- SCREEN 2: Log -->
+    <div class="screen" id="screen-log">
+      <div style="text-align:center;padding:40px 20px;color:var(--muted)">
+        <div style="font-size:36px;margin-bottom:10px">➕</div>
+        <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:6px">Log Screen</div>
+        Coming in Step 3
+      </div>
+    </div>
+
+    <!-- SCREEN 3: Reports -->
+    <div class="screen" id="screen-reports">
+      <div style="text-align:center;padding:40px 20px;color:var(--muted)">
+        <div style="font-size:36px;margin-bottom:10px">📊</div>
+        <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:6px">Reports Screen</div>
+        Coming in Step 5
+      </div>
+    </div>
+
+    <!-- SCREEN 4: Settings -->
+    <div class="screen" id="screen-settings">
+      <div style="text-align:center;padding:40px 20px;color:var(--muted)">
+        <div style="font-size:36px;margin-bottom:10px">⚙️</div>
+        <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:6px">Settings Screen</div>
+        Coming in Step 6
+      </div>
+    </div>
+
+  </div>
+
+  <nav id="bottom-nav">
+    <button class="nav-btn active" onclick="navigate('today','My habits',this)">
+      <span class="nav-icon">🏠</span><span>Today</span>
+    </button>
+    <button class="nav-btn" onclick="navigate('log','Log entry',this)">
+      <span class="nav-icon">➕</span><span>Log</span>
+    </button>
+    <button class="nav-btn" onclick="navigate('reports','Reports',this)">
+      <span class="nav-icon">📊</span><span>Reports</span>
+    </button>
+    <button class="nav-btn" onclick="navigate('settings','Settings',this)">
+      <span class="nav-icon">⚙️</span><span>Settings</span>
+    </button>
+  </nav>
+
+  <!-- Google Sign-In library -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <script>
+    /* ═══════════════════════════════════════════════
+       ⚙️ CONFIGURATION
+       PASTE YOUR SCRIPT URL HERE
+       Replace the URL below with your own URL.
+    ═══════════════════════════════════════════════ */
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxWl3z2ur3jYakNyFQXk1zDOWAAWsEDthQmUMlZ2eCZwSmjXWuTTMAb6u5lN8iSxLGPuA/exec';
+
+    /*
+      Google OAuth Client ID.
+      This identifies your app to Google Sign-In.
+      We use a shared public client ID for now.
+      (You can create your own later in Google Cloud Console)
+    */
+    const GOOGLE_CLIENT_ID = '683803009812-qjkfp0bf4tfh8v3kb2mc4g5p3jm4s4mj.apps.googleusercontent.com';
+
+    /* ═══════════════════════════════════════════════
+       STATE
+       Variables that track the current state
+       of the app while it's running.
+    ═══════════════════════════════════════════════ */
+    let currentUser  = null; // the signed-in user object
+    let habits       = [];   // list of habit definitions
+    let todayEntries = [];   // entries logged today
+
+    /* ═══════════════════════════════════════════════
+       ICONS — custom SVG per habit
+    ═══════════════════════════════════════════════ */
+    const ICONS = {
+      sleep: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="20" cy="20" r="18" fill="#EDE9FE"/>
+        <path d="M24 7 Q10 10 10 20 Q10 30 24 33 Q14 31 9 22 Q4 13 10 8 Q15 4 24 7Z" fill="#A78BFA"/>
+        <path d="M22 9 Q13 12 13 20 Q13 28 22 31 Q14 28 11 21 Q8 14 13 10 Q16 7 22 9Z" fill="#C4B5FD" opacity=".35"/>
+        <circle cx="15" cy="19" r="1.5" fill="#8B5CF6" opacity=".3"/>
+        <path d="M30 8 L31 5 L32 8 L35 9 L32 10 L31 13 L30 10 L27 9Z" fill="#FCD34D"/>
+        <path d="M34 18 L35 15 L36 18 L39 19 L36 20 L35 23 L34 20 L31 19Z" fill="#FDE68A"/>
+        <path d="M29 14 L30 12 L31 14 L33 15 L31 16 L30 18 L29 16 L27 15Z" fill="#FCD34D" opacity=".9"/>
+        <circle cx="32" cy="26" r="1.5" fill="#FCD34D" opacity=".7"/>
+        <circle cx="36" cy="13" r="1.2" fill="#C4B5FD" opacity=".8"/>
+        <text x="26" y="25" font-size="5" fill="#7C3AED" font-weight="600" font-family="sans-serif">z</text>
+        <text x="30" y="21" font-size="6" fill="#7C3AED" font-weight="600" font-family="sans-serif">z</text>
+        <text x="34" y="16" font-size="7" fill="#7C3AED" font-weight="600" font-family="sans-serif">z</text>
+      </svg>`,
+      exercise: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="20" cy="20" r="18" fill="#D1FAE5"/>
+        <circle cx="24" cy="7" r="3" fill="#F472B6"/>
+        <ellipse cx="23" cy="6" rx="3" ry="2" fill="#EC4899"/>
+        <circle cx="19" cy="11" r="5" fill="#FDDCB5"/>
+        <ellipse cx="21" cy="9" rx="5" ry="2.5" fill="#F472B6"/>
+        <path d="M16 10 Q17.5 9 19 10" stroke="#92400E" stroke-width=".8" fill="none" stroke-linecap="round"/>
+        <path d="M21 9 L22 7 L23 9 L25 10 L23 11 L22 13 L21 11 L19 10Z" fill="#F59E0B"/>
+        <path d="M16 12 Q17.5 13.5 19 12" stroke="#92400E" stroke-width=".7" fill="none" stroke-linecap="round"/>
+        <circle cx="14" cy="12" r="1.5" fill="#FCA5A5" opacity=".5"/>
+        <circle cx="22" cy="12" r="1.5" fill="#FCA5A5" opacity=".5"/>
+        <path d="M12 17 Q19 13 27 17 L25 27 Q19 30 13 27Z" fill="#34D399"/>
+        <line x1="25" y1="18" x2="31" y2="13" stroke="#FDDCB5" stroke-width="2.5" stroke-linecap="round"/>
+        <rect x="29" y="10" width="7" height="2.5" rx="1.2" fill="#059669"/>
+        <rect x="28" y="9" width="2.5" height="4.5" rx="1.2" fill="#047857"/>
+        <rect x="34" y="9" width="2.5" height="4.5" rx="1.2" fill="#047857"/>
+        <line x1="12" y1="18" x2="8" y2="22" stroke="#FDDCB5" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="14" y1="27" x2="11" y2="33" stroke="#FDDCB5" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="22" y1="27" x2="25" y2="33" stroke="#FDDCB5" stroke-width="2.5" stroke-linecap="round"/>
+        <ellipse cx="10" cy="34" rx="3" ry="1.8" fill="#F472B6"/>
+        <ellipse cx="26" cy="34" rx="3" ry="1.8" fill="#F472B6"/>
+        <path d="M30 8 Q31 6 32 8 Q32 10 31 10 Q30 10 30 8Z" fill="#A7F3D0"/>
+      </svg>`,
+      mood: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="20" cy="20" r="18" fill="#FFEDD5"/>
+        <circle cx="20" cy="22" r="13" fill="#FCD34D"/>
+        <path d="M13 19 Q15 16 17 19" stroke="#92400E" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M23 19 Q25 16 27 19" stroke="#92400E" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M13 26 Q20 33 27 26" stroke="#92400E" stroke-width="1.5" fill="#FEF3C7" stroke-linecap="round"/>
+        <circle cx="11" cy="26" r="4" fill="#FCA5A5" opacity=".5"/>
+        <circle cx="29" cy="26" r="4" fill="#FCA5A5" opacity=".5"/>
+        <path d="M32 9 L33 6 L34 9 L37 10 L34 11 L33 14 L32 11 L29 10Z" fill="#FCD34D" opacity=".8"/>
+        <circle cx="6" cy="14" r="1.5" fill="#FCD34D" opacity=".7"/>
+      </svg>`,
+      finance: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="20" cy="20" r="18" fill="#FEF3C7"/>
+        <rect x="5" y="14" width="22" height="16" rx="3" fill="#FBBF24"/>
+        <rect x="5" y="14" width="22" height="6" rx="3" fill="#F59E0B"/>
+        <rect x="8" y="17" width="10" height="3" rx="1.2" fill="#FDE68A"/>
+        <rect x="8" y="17" width="4" height="3" rx="1.2" fill="#FCD34D"/>
+        <circle cx="22" cy="25" r="5" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1"/>
+        <text x="22" y="28" text-anchor="middle" font-size="6" fill="#78350F" font-weight="500" font-family="sans-serif">¥</text>
+        <rect x="25" y="7" width="12" height="9" rx="3" fill="#FFFBEB" stroke="#FDE68A" stroke-width=".8"/>
+        <polyline points="27,13 29,10 31,11 35,7" stroke="#FBBF24" stroke-width="1" fill="none" stroke-linecap="round"/>
+        <line x1="35" y1="7" x2="37" y2="5" stroke="#059669" stroke-width="1" stroke-linecap="round"/>
+        <path d="M3 9 L4 7 L5 9 L7 10 L5 11 L4 13 L3 11 L1 10Z" fill="#FCD34D" opacity=".8"/>
+      </svg>`,
+      language: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="20" cy="20" r="18" fill="#E0F2FE"/>
+        <rect x="4" y="10" width="30" height="18" rx="8" fill="#38BDF8"/>
+        <polygon points="10,28 6,36 18,28" fill="#38BDF8"/>
+        <text x="19" y="21" text-anchor="middle" font-size="6.5" fill="#fff" font-weight="500" font-family="sans-serif">こんにちは</text>
+        <text x="19" y="28" text-anchor="middle" font-size="5" fill="#BAE6FD" font-family="sans-serif">Hello!</text>
+        <rect x="28" y="6" width="10" height="7" rx="3" fill="#0EA5E9"/>
+        <text x="33" y="11" text-anchor="middle" font-size="5" fill="#fff" font-weight="500" font-family="sans-serif">Hi!</text>
+        <path d="M34 30 L35 27 L36 30 L39 31 L36 32 L35 35 L34 32 L31 31Z" fill="#BAE6FD" opacity=".7"/>
+      </svg>`,
+      tech: `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="20" cy="20" r="18" fill="#FCE7F3"/>
+        <rect x="6" y="12" width="28" height="18" rx="3" fill="#1E1E2E"/>
+        <rect x="9" y="15" width="22" height="12" rx="2" fill="#0D0D1A"/>
+        <text x="11" y="21" font-size="4" fill="#F472B6" font-family="monospace" font-weight="500">&lt;AI&gt;</text>
+        <text x="11" y="25" font-size="3.5" fill="#34D399" font-family="monospace">def learn():</text>
+        <text x="13" y="29" font-size="3.5" fill="#38BDF8" font-family="monospace">  code=💻</text>
+        <rect x="18" y="30" width="4" height="1.5" rx=".7" fill="#252538"/>
+        <rect x="10" y="31" width="20" height="2" rx="1" fill="#2D2D44"/>
+        <rect x="6" y="6" width="9" height="6" rx="2" fill="#A78BFA"/>
+        <text x="10.5" y="10.5" text-anchor="middle" font-size="4" fill="#fff" font-weight="600" font-family="sans-serif">AI</text>
+        <rect x="28" y="6" width="9" height="6" rx="2" fill="#F472B6"/>
+        <text x="32.5" y="10.5" text-anchor="middle" font-size="5" fill="#fff" font-weight="700" font-family="monospace">{}</text>
+        <path d="M4 22 L5 19 L6 22 L9 23 L6 24 L5 27 L4 24 L1 23Z" fill="#F472B6" opacity=".6"/>
+      </svg>`
+    };
+
+    /* ═══════════════════════════════════════════════
+       DATE HELPERS
+    ═══════════════════════════════════════════════ */
+
+    // Get today's date as "YYYY-MM-DD" string
+    // Example: "2026-05-08"
+    function getTodayString() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0'); // month is 0-indexed!
+      const day = String(d.getDate()).padStart(2, '0');
+      return y + '-' + m + '-' + day;
+    }
+
+    // Format date nicely for display
+    // Example: "Friday, May 8 · 2026"
+    function formatDateNice(dateStr) {
+      const d = new Date(dateStr + 'T00:00:00');
+      return d.toLocaleDateString('en-US', {
+        weekday: 'long', month: 'long',
+        day: 'numeric', year: 'numeric'
+      });
+    }
+
+    /* ═══════════════════════════════════════════════
+       API — talk to Google Sheets
+       All communication with the backend happens
+       through these two functions.
+    ═══════════════════════════════════════════════ */
+
+    /*
+      apiGet(action, params)
+      ─────────────────────
+      Reads data FROM Google Sheets.
+      Builds a URL with query parameters and
+      fetches it. Returns the parsed JSON result.
+
+      Example:
+      apiGet('getHabits', { userEmail: 'me@gmail.com' })
+      → fetches: SCRIPT_URL?action=getHabits&userEmail=me@gmail.com
+      → returns: [ {id:'sleep', name:'Sleep', ...}, ... ]
+    */
+    async function apiGet(action, params = {}) {
+      params.action    = action;
+      params.userEmail = currentUser.email;
+
+      // Build URL query string from params object
+      // { action:'getHabits', userEmail:'me@gmail.com' }
+      // → "?action=getHabits&userEmail=me%40gmail.com"
+      const query = new URLSearchParams(params).toString();
+      const url   = SCRIPT_URL + '?' + query;
+
+      const response = await fetch(url);
+      const data     = await response.json();
+      return data;
+    }
+
+    /*
+      apiPost(action, body)
+      ─────────────────────
+      Writes data TO Google Sheets.
+      Sends JSON in the request body.
+
+      Example:
+      apiPost('saveEntry', { habitId:'sleep', date:'2026-05-08', value:{...} })
+      → sends POST request to SCRIPT_URL
+      → returns: { success: true, id: 'ht_123...' }
+    */
+    async function apiPost(action, body = {}) {
+      body.action    = action;
+      body.userEmail = currentUser.email;
+
+      const response = await fetch(SCRIPT_URL, {
+        method:  'POST',
+        body:    JSON.stringify(body),
+        // Note: no Content-Type header — Apps Script needs this
+      });
+      const data = await response.json();
+      return data;
+    }
+
+    /* ═══════════════════════════════════════════════
+       GOOGLE SIGN-IN
+       Uses Google's official sign-in library.
+       When user signs in, Google gives us a
+       "credential" token. We decode it to get
+       the user's name, email, and profile picture.
+    ═══════════════════════════════════════════════ */
+
+    // Called by Google's library when sign-in is ready
+    function initGoogleSignIn() {
+      google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback:  handleSignInResponse,
+        auto_select: true, // auto sign-in if previously signed in
+      });
+
+      // Try silent sign-in first (if user was here before)
+      google.accounts.id.prompt((notification) => {
+        if (notification.isNotDisplayed() ||
+            notification.isSkippedMoment()) {
+          // No auto sign-in → show login screen
+          showLoginScreen();
+        }
+      });
+    }
+
+    // Called when Google returns sign-in result
+    function handleSignInResponse(response) {
+      // Decode the JWT token Google gives us
+      // A JWT has 3 parts separated by dots: header.payload.signature
+      // We only need the payload (middle part)
+      const payload = JSON.parse(
+        atob(response.credential.split('.')[1])
+      );
+
+      // Extract user info from payload
+      currentUser = {
+        email:   payload.email,
+        name:    payload.name,
+        picture: payload.picture,
+      };
+
+      // Save to sessionStorage so user stays signed in
+      // during this browser session
+      sessionStorage.setItem('ht_user', JSON.stringify(currentUser));
+
+      // Start the app with this user
+      startApp();
+    }
+
+    // Show the login screen
+    function showLoginScreen() {
+      document.getElementById('loading-screen').style.display = 'none';
+      const loginEl = document.getElementById('login-screen');
+      loginEl.style.display = 'flex';
+    }
+
+    // Manual sign-in button tap
+    function signIn() {
+      google.accounts.id.prompt();
+    }
+
+    // Sign out
+    function signOut() {
+      google.accounts.id.disableAutoSelect();
+      sessionStorage.removeItem('ht_user');
+      currentUser = null;
+      habits = [];
+      todayEntries = [];
+      showLoginScreen();
+    }
+
+    // Show user menu (simple for now)
+    function showUserMenu() {
+      if (!currentUser) return;
+      const choice = confirm(
+        'Signed in as: ' + currentUser.email + '\n\nSign out?'
+      );
+      if (choice) signOut();
+    }
+
+    /* ═══════════════════════════════════════════════
+       START APP
+       Called after successful sign-in.
+       Loads habits and today's entries,
+       then builds the Today screen.
+    ═══════════════════════════════════════════════ */
+    async function startApp() {
+      // Hide login, show loading
+      document.getElementById('login-screen').style.display  = 'none';
+      document.getElementById('loading-screen').style.display = 'flex';
+
+      // Update user avatar
+      const avatarEl = document.getElementById('user-avatar');
+      if (currentUser.picture) {
+        avatarEl.innerHTML = `<img src="${currentUser.picture}" alt="avatar">`;
+      } else {
+        avatarEl.textContent = currentUser.name.charAt(0).toUpperCase();
+      }
+
+      try {
+        // Step 1: Initialize habits if new user
+        // (creates default 6 habits in the sheet)
+        await apiPost('initHabits', {});
+
+        // Step 2: Load habits from Google Sheets
+        habits = await apiGet('getHabits');
+
+        // Step 3: Load today's entries
+        const today  = getTodayString();
+        todayEntries = await apiGet('getEntries', { date: today });
+
+        // Step 4: Update top bar date
+        document.getElementById('top-bar-sub').textContent =
+          formatDateNice(today);
+
+        // Step 5: Build Today screen
+        buildTodayScreen();
+
+        // Step 6: Hide loading screen — show app
+        document.getElementById('loading-screen').style.display = 'none';
+
+      } catch (err) {
+        // Something went wrong — show error
+        console.error('Error starting app:', err);
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('error-banner').style.display   = 'block';
+        document.getElementById('error-banner').textContent =
+          '⚠️ Could not connect to database. Check your internet connection.';
+      }
+    }
+
+    /* ═══════════════════════════════════════════════
+       CALCULATE STREAK
+       Counts how many consecutive days in a row
+       a habit has been logged.
+
+       Logic:
+       - Start from yesterday, go backwards
+       - Count days until we find a day with no entry
+       - If today is logged, add 1
+    ═══════════════════════════════════════════════ */
+    function calcStreak(habitId, allEntries) {
+      const today = getTodayString();
+      let streak  = 0;
+      let date    = new Date();
+
+      // Go back up to 365 days
+      for (let i = 0; i < 365; i++) {
+        const dateStr = date.toISOString().split('T')[0];
+
+        // Check if this habit was logged on this date
+        const logged = allEntries.some(
+          e => e.habitId === habitId && e.date === dateStr
+        );
+
+        if (logged) {
+          streak++;
+          // Go back one more day
+          date.setDate(date.getDate() - 1);
+        } else {
+          // Gap found — stop counting
+          // (but if it's today and not logged yet, don't break streak)
+          if (dateStr === today) {
+            date.setDate(date.getDate() - 1);
+            continue;
+          }
+          break;
+        }
+      }
+      return streak;
+    }
+
+    /* ═══════════════════════════════════════════════
+       BUILD CONTRIBUTION GRID
+       Creates the rows of colored day squares.
+    ═══════════════════════════════════════════════ */
+    function buildGrid(habitId, color, light, allEntries) {
+      const ROWS  = 4;
+      const COLS  = 22;
+      const today = new Date();
+      const wrap  = document.createElement('div');
+      wrap.className = 'grid-wrap';
+
+      for (let r = 0; r < ROWS; r++) {
+        const row = document.createElement('div');
+        row.className = 'grid-row';
+
+        for (let c = 0; c < COLS; c++) {
+          // Calculate which date this cell represents
+          // Cell 0,0 = oldest date (ROWS*COLS - 1 days ago)
+          // Last cell = today
+          const daysAgo = (ROWS * COLS - 1) - (r * COLS + c);
+          const cellDate = new Date(today);
+          cellDate.setDate(today.getDate() - daysAgo);
+          const dateStr = cellDate.toISOString().split('T')[0];
+
+          // Check if this habit was logged on this date
+          const isLogged = allEntries.some(
+            e => e.habitId === habitId && e.date === dateStr
+          );
+          const isToday = daysAgo === 0;
+
+          const cell = document.createElement('div');
+          cell.className = 'grid-cell';
+
+          if (isToday) {
+            cell.style.background    = isLogged ? color : light;
+            cell.style.outline       = '2px solid ' + color;
+            cell.style.outlineOffset = '1px';
+          } else if (isLogged) {
+            cell.style.background = color;
+          } else {
+            cell.style.background = light;
+          }
+
+          row.appendChild(cell);
+        }
+        wrap.appendChild(row);
+      }
+      return wrap;
+    }
+
+    /* ═══════════════════════════════════════════════
+       BUILD TODAY SCREEN
+       Creates one card per habit and injects
+       them into the #today-cards div.
+    ═══════════════════════════════════════════════ */
+    function buildTodayScreen() {
+      const container = document.getElementById('today-cards');
+      container.innerHTML = ''; // clear any previous cards
+
+      if (habits.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">✨</div>
+            <div class="empty-title">No habits yet</div>
+            Go to Settings to add your first habit.
+          </div>`;
+        return;
+      }
+
+      const today = getTodayString();
+
+      habits.forEach(function(habit) {
+        // Check if this habit is logged today
+        const isLogged = todayEntries.some(
+          e => e.habitId === habit.id
+        );
+
+        // Calculate streak using today's entries
+        // (In a real app we'd load all entries — for now use todayEntries)
+        const streak = isLogged ? 1 : 0;
+
+        // Create card
+        const card = document.createElement('div');
+        card.className = 'habit-card';
+        card.onclick   = function() {
+          goLog(habit.id);
+        };
+
+        // Top row: icon + name + streak + checkmark
+        const topRow = document.createElement('div');
+        topRow.className = 'card-top';
+
+        const iconDiv = document.createElement('div');
+        iconDiv.className = 'card-icon';
+        iconDiv.innerHTML = ICONS[habit.id] || ICONS['mood'];
+
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'card-info';
+        infoDiv.innerHTML = `
+          <div class="card-name">${habit.name}</div>
+          <div class="card-streak">${isLogged ? '🔥 logged today' : 'Not logged yet'}</div>`;
+
+        const checkEl = document.createElement('div');
+        checkEl.className = 'card-check' + (isLogged ? ' logged' : '');
+        checkEl.textContent = isLogged ? '✓' : '';
+
+        topRow.appendChild(iconDiv);
+        topRow.appendChild(infoDiv);
+        topRow.appendChild(checkEl);
+
+        // Contribution grid
+        // For now uses todayEntries — Step 4 will load full history
+        const grid = buildGrid(habit.id, habit.color, habit.light, todayEntries);
+
+        card.appendChild(topRow);
+        card.appendChild(grid);
+        container.appendChild(card);
+      });
+    }
+
+    /* ═══════════════════════════════════════════════
+       NAVIGATION
+    ═══════════════════════════════════════════════ */
+    function navigate(screenName, title, clickedBtn) {
+      document.querySelectorAll('.screen').forEach(s =>
+        s.classList.remove('active'));
+      document.getElementById('screen-' + screenName).classList.add('active');
+      document.querySelectorAll('.nav-btn').forEach(b =>
+        b.classList.remove('active'));
+      if (clickedBtn) clickedBtn.classList.add('active');
+      document.getElementById('top-bar-title').textContent = title;
+      document.getElementById('content').scrollTop = 0;
+    }
+
+    function goLog(habitId) {
+      const logBtn = document.querySelectorAll('.nav-btn')[1];
+      navigate('log', 'Log entry', logBtn);
+      // Step 3 will add pre-selection logic here
+    }
+
+    /* ═══════════════════════════════════════════════
+       STARTUP
+       When the page loads:
+       1. Check if user was already signed in
+          (stored in sessionStorage)
+       2. If yes → start app directly
+       3. If no → wait for Google Sign-In library
+          to load, then try auto sign-in
+    ═══════════════════════════════════════════════ */
+    window.addEventListener('load', function() {
+      // Check for existing session
+      const savedUser = sessionStorage.getItem('ht_user');
+      if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        startApp();
+        return;
+      }
+
+      // Wait for Google library to load, then initialize
+      const waitForGoogle = setInterval(function() {
+        if (typeof google !== 'undefined') {
+          clearInterval(waitForGoogle);
+          initGoogleSignIn();
+        }
+      }, 100);
+
+      // If Google library fails to load after 5 seconds
+      setTimeout(function() {
+        if (!currentUser) {
+          showLoginScreen();
+        }
+      }, 5000);
+    });
+
+  </script>
+</body>
+</html>
