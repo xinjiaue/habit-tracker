@@ -18,8 +18,6 @@
       color:var(--text); height:100dvh;
       display:flex; flex-direction:column; overflow:hidden;
     }
-
-    /* ── TOP BAR ── */
     #top-bar {
       background:var(--white); border-bottom:1px solid var(--border);
       padding:14px 18px 12px; flex-shrink:0;
@@ -32,16 +30,10 @@
       border-radius:20px; padding:4px 10px;
       font-size:10px; color:var(--muted); cursor:pointer; white-space:nowrap;
     }
-
-    /* ── CONTENT ── */
     #content { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
     #content::-webkit-scrollbar { display:none; }
-
-    /* ── SCREENS ── */
     .screen { display:none; }
     .screen.active { display:block; }
-
-    /* ── BOTTOM NAV ── */
     #bottom-nav {
       background:var(--white); border-top:1px solid var(--border);
       display:flex; flex-shrink:0;
@@ -56,7 +48,7 @@
     .nav-btn .ni { font-size:20px; line-height:1; }
     .nav-btn.active { color:var(--text); }
 
-    /* ── LOGIN SCREEN ── */
+    /* LOGIN */
     #login-screen {
       position:fixed; inset:0; background:var(--white);
       display:flex; flex-direction:column;
@@ -86,7 +78,7 @@
       width:100%; max-width:280px; text-align:center; display:none;
     }
 
-    /* ── LOADING ── */
+    /* LOADING */
     #loading-screen {
       position:fixed; inset:0; background:var(--white);
       display:flex; flex-direction:column;
@@ -97,9 +89,7 @@
     .loading-text { font-size:14px; color:var(--muted); }
     @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
 
-    /* ════════════════════════════════
-       TODAY SCREEN
-    ════════════════════════════════ */
+    /* TODAY SCREEN */
     #screen-today { padding:14px; }
     .section-label {
       font-size:10px; font-weight:500; color:var(--muted);
@@ -123,33 +113,51 @@
       display:flex; align-items:center; justify-content:center;
       font-size:11px; color:var(--white); flex-shrink:0; transition:all 0.2s;
     }
-    .card-check.logged { background:var(--text); border-color:var(--text); }
+    .card-check.logged  { background:var(--text); border-color:var(--text); }
+    .card-check.skipped { background:#E5E5E5; border-color:#E5E5E5; color:#999; font-size:14px; }
+
+    /* ── CONTRIBUTION GRID ── */
     .grid-wrap { display:flex; flex-direction:column; gap:2px; }
     .grid-row  { display:flex; gap:2px; }
-    .grid-cell { flex:1; height:8px; border-radius:2px; }
+    .grid-cell {
+      flex:1; height:8px; border-radius:2px;
+      position:relative;
+      /*
+        Each cell = one day.
+        Color tells you what happened:
+        - light color = not recorded
+        - accent color = completed ✅
+        - #E5E5E5 = skipped / rest day ❌
+        - outlined = today
+      */
+    }
+
+    /* Grid legend at bottom of each card */
+    .grid-legend {
+      display:flex; align-items:center; gap:12px;
+      margin-top:6px; flex-wrap:wrap;
+    }
+    .legend-item {
+      display:flex; align-items:center; gap:4px;
+      font-size:9px; color:var(--muted);
+    }
+    .legend-dot {
+      width:8px; height:8px; border-radius:2px; flex-shrink:0;
+    }
+
     .error-banner {
       background:#FEE2E2; border:1px solid #FCA5A5;
       border-radius:var(--radius); padding:12px 14px;
       margin-bottom:12px; font-size:12px; color:#7F1D1D; display:none;
     }
 
-    /* ════════════════════════════════
-       LOG SCREEN — Step 3
-       This is what we're building now!
-    ════════════════════════════════ */
+    /* LOG SCREEN */
     #screen-log { padding:14px; }
-
-    /*
-      LOG NAV — top row with prev/next icons and dots
-      Shows which habit you're on.
-    */
     .log-nav {
       display:flex; align-items:center;
       justify-content:space-between;
       margin-bottom:12px; gap:8px;
     }
-
-    /* Prev / Next buttons — show the icon of adjacent habit */
     .log-nav-btn {
       width:44px; height:40px;
       background:var(--surface); border:1px solid var(--border);
@@ -159,8 +167,6 @@
     }
     .log-nav-btn:active { background:var(--border); }
     .log-nav-btn svg { width:24px; height:24px; }
-
-    /* Dot indicators — one per habit */
     .log-dots {
       display:flex; align-items:center;
       justify-content:center; gap:5px; flex:1;
@@ -168,81 +174,47 @@
     .log-dot {
       height:7px; border-radius:4px;
       background:var(--border); cursor:pointer;
-      transition:all 0.2s;
-      width:7px; /* default = round */
+      transition:all 0.2s; width:7px;
     }
-    .log-dot.active {
-      width:16px; /* active = wider pill shape */
-    }
-
-    /*
-      LOG HEADER CARD
-      Shows big icon + habit name + "X of 6"
-      Background color = habit's light color.
-    */
+    .log-dot.active { width:16px; }
     .log-header {
       border-radius:16px; padding:20px;
       margin-bottom:16px; text-align:center;
     }
-    .log-header-icon {
-      display:flex; justify-content:center; margin-bottom:10px;
-    }
+    .log-header-icon { display:flex; justify-content:center; margin-bottom:10px; }
     .log-header-icon svg { width:64px; height:64px; }
-    .log-header-name {
-      font-size:20px; font-weight:500; margin-bottom:4px;
+    .log-header-name { font-size:20px; font-weight:500; margin-bottom:4px; }
+    .log-header-sub  { font-size:12px; opacity:.6; }
+
+    /* Today's status badge on log header */
+    .log-status-badge {
+      display:inline-flex; align-items:center; gap:5px;
+      border-radius:20px; padding:4px 12px;
+      font-size:11px; font-weight:500; margin-top:8px;
     }
-    .log-header-sub { font-size:12px; opacity:.6; }
 
-    /*
-      FORM ELEMENTS
-      Labels, inputs, dropdowns, save button.
-    */
     .form-group { margin-bottom:12px; }
-
     .form-label {
       font-size:10px; font-weight:500; color:var(--muted);
       text-transform:uppercase; letter-spacing:.06em;
       display:block; margin-bottom:5px;
     }
-
-    /* All inputs and dropdowns share this style */
     .form-input {
       width:100%;
       background:var(--surface); border:1.5px solid var(--border);
       border-radius:10px; padding:11px 14px;
       font-size:15px; font-family:var(--font);
-      color:var(--text); outline:none;
-      transition:border-color 0.15s;
-      appearance:none; /* removes default browser styling on select */
-      -webkit-appearance:none;
+      color:var(--text); outline:none; transition:border-color 0.15s;
+      appearance:none; -webkit-appearance:none;
     }
     .form-input:focus { border-color:var(--text); }
-
-    /*
-      DURATION PILL
-      Shows auto-calculated sleep duration.
-      Background = habit's light color.
-      Text = habit's accent color.
-    */
     .duration-pill {
       border-radius:12px; padding:14px;
       text-align:center; margin-bottom:12px;
     }
-    .duration-val {
-      font-size:30px; font-weight:500; line-height:1;
-    }
-    .duration-lbl {
-      font-size:11px; opacity:.6; margin-top:4px;
-    }
-
-    /*
-      MOOD SELECTOR
-      5 emoji buttons in a row.
-      Tap one to select it.
-    */
-    .mood-row {
-      display:flex; gap:8px;
-    }
+    .duration-val { font-size:30px; font-weight:500; line-height:1; }
+    .duration-lbl { font-size:11px; opacity:.6; margin-top:4px; }
+    .mood-row { display:flex; gap:8px; }
     .mood-btn {
       flex:1; background:var(--surface);
       border:2px solid var(--border);
@@ -251,32 +223,45 @@
       text-align:center; transition:all 0.15s;
       font-family:var(--font);
     }
-    /* Selected mood = colored border + light background */
-    .mood-btn.selected {
-      transform:scale(1.08);
-    }
 
-    /* SAVE BUTTON */
+    /*
+      SAVE AREA — new design!
+      Shows two buttons side by side:
+      "I did it!" and "Rest day"
+    */
+    .save-area {
+      background:var(--surface); border-radius:12px;
+      padding:14px; margin-top:4px;
+    }
+    .save-area-label {
+      font-size:11px; font-weight:500; color:var(--muted);
+      text-transform:uppercase; letter-spacing:.06em;
+      margin-bottom:10px; text-align:center;
+    }
+    .save-btns { display:flex; gap:10px; }
     .save-btn {
-      width:100%; border:none;
-      border-radius:14px; padding:15px;
-      font-size:15px; font-weight:500;
+      flex:1; border:none; border-radius:12px; padding:14px 8px;
+      font-size:14px; font-weight:500;
       font-family:var(--font); cursor:pointer;
-      margin-top:4px; transition:opacity 0.15s;
-      color:var(--white);
+      transition:opacity 0.15s, transform 0.1s;
     }
-    .save-btn:active { opacity:.85; }
-
-    /* SAVING STATE — shows while saving to Sheets */
-    .save-btn.saving {
-      opacity:.6; cursor:not-allowed;
+    .save-btn:active { transform:scale(0.98); }
+    .save-btn.primary { color:var(--white); }
+    .save-btn.secondary {
+      background:var(--white); color:#888;
+      border:1.5px solid var(--border);
     }
-
-    /* SUCCESS MESSAGE — shown after save */
+    .save-btn:disabled { opacity:.6; cursor:not-allowed; }
     .save-success {
       background:#D1FAE5; border:1px solid #6EE7B7;
       border-radius:var(--radius); padding:12px 14px;
       text-align:center; font-size:13px; color:#065F46;
+      margin-top:10px; display:none;
+    }
+    .save-skip {
+      background:#F7F7F4; border:1px solid #e0e0e0;
+      border-radius:var(--radius); padding:12px 14px;
+      text-align:center; font-size:13px; color:#888;
       margin-top:10px; display:none;
     }
 
@@ -294,13 +279,11 @@
 </head>
 <body>
 
-  <!-- LOADING -->
   <div id="loading-screen">
     <div class="loading-icon">✨</div>
     <div class="loading-text">Loading your habits...</div>
   </div>
 
-  <!-- LOGIN -->
   <div id="login-screen" style="display:none">
     <div class="login-icon">✨</div>
     <div class="login-title">Habit Tracker</div>
@@ -310,10 +293,9 @@
       onkeydown="if(event.key==='Enter') startLogin()">
     <div class="login-error" id="login-error"></div>
     <button class="login-btn" onclick="startLogin()">Start tracking →</button>
-    <div class="login-hint">Your data is stored separately per email.<br>No password needed.</div>
+    <div class="login-hint">Your data is stored separately per email.</div>
   </div>
 
-  <!-- TOP BAR -->
   <div id="top-bar">
     <div class="top-bar-inner">
       <div>
@@ -324,29 +306,15 @@
     </div>
   </div>
 
-  <!-- CONTENT -->
   <div id="content">
-
-    <!-- SCREEN 1: TODAY -->
     <div class="screen active" id="screen-today">
       <div class="error-banner" id="error-banner"></div>
       <div class="section-label">Today's habits</div>
       <div id="today-cards"></div>
     </div>
 
-    <!-- SCREEN 2: LOG — built by JavaScript -->
-    <div class="screen" id="screen-log">
-      <!--
-        This entire screen is built by JavaScript.
-        The renderLogScreen() function creates:
-        1. Nav row (prev icon + dots + next icon)
-        2. Header card (big icon + name + counter)
-        3. Form (different per habit type)
-        4. Save button
-      -->
-    </div>
+    <div class="screen" id="screen-log"></div>
 
-    <!-- SCREEN 3: REPORTS -->
     <div class="screen" id="screen-reports">
       <div class="placeholder-screen">
         <div class="ph-icon">📊</div>
@@ -355,7 +323,6 @@
       </div>
     </div>
 
-    <!-- SCREEN 4: SETTINGS -->
     <div class="screen" id="screen-settings">
       <div class="placeholder-screen">
         <div class="ph-icon">⚙️</div>
@@ -363,10 +330,8 @@
         Coming in Step 6
       </div>
     </div>
-
   </div>
 
-  <!-- BOTTOM NAV -->
   <nav id="bottom-nav">
     <button class="nav-btn active" onclick="navigate('today','My habits',this)">
       <span class="ni">🏠</span><span>Today</span>
@@ -383,20 +348,16 @@
   </nav>
 
   <script>
-    /* ══════════════════════════════════════════
-       CONFIGURATION
-    ══════════════════════════════════════════ */
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxWl3z2ur3jYakNyFQXk1zDOWAAWsEDthQmUMlZ2eCZwSmjXWuTTMAb6u5IN8iSxLGPuA/exec';
 
-    /* ── STATE ── */
     let currentUser  = null;
     let habits       = [];
-    let todayEntries = [];
-    let curHabitIdx  = 0; // which habit is shown on Log screen
+    let allEntries   = []; // ALL entries (full history) — NEW in Step 4
+    let todayEntries = []; // just today's entries (filtered from allEntries)
+    let curHabitIdx  = 0;
+    let selectedMood = 3;
 
-    /* ══════════════════════════════════════════
-       SVG ICONS
-    ══════════════════════════════════════════ */
+    /* ── ICONS ── */
     const ICONS = {
       sleep:`<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#EDE9FE"/><path d="M24 7 Q10 10 10 20 Q10 30 24 33 Q14 31 9 22 Q4 13 10 8 Q15 4 24 7Z" fill="#A78BFA"/><path d="M22 9 Q13 12 13 20 Q13 28 22 31 Q14 28 11 21 Q8 14 13 10 Q16 7 22 9Z" fill="#C4B5FD" opacity=".35"/><path d="M30 8 L31 5 L32 8 L35 9 L32 10 L31 13 L30 10 L27 9Z" fill="#FCD34D"/><path d="M34 18 L35 15 L36 18 L39 19 L36 20 L35 23 L34 20 L31 19Z" fill="#FDE68A"/><circle cx="32" cy="26" r="1.5" fill="#FCD34D" opacity=".7"/><text x="26" y="25" font-size="5" fill="#7C3AED" font-weight="600" font-family="sans-serif">z</text><text x="30" y="21" font-size="6" fill="#7C3AED" font-weight="600" font-family="sans-serif">z</text><text x="34" y="16" font-size="7" fill="#7C3AED" font-weight="600" font-family="sans-serif">z</text></svg>`,
       exercise:`<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#D1FAE5"/><circle cx="24" cy="7" r="3" fill="#F472B6"/><circle cx="19" cy="11" r="5" fill="#FDDCB5"/><ellipse cx="21" cy="9" rx="5" ry="2.5" fill="#F472B6"/><path d="M16 10 Q17.5 9 19 10" stroke="#92400E" stroke-width=".8" fill="none" stroke-linecap="round"/><path d="M16 12 Q17.5 13.5 19 12" stroke="#92400E" stroke-width=".7" fill="none" stroke-linecap="round"/><circle cx="14" cy="12" r="1.5" fill="#FCA5A5" opacity=".5"/><circle cx="22" cy="12" r="1.5" fill="#FCA5A5" opacity=".5"/><path d="M12 17 Q19 13 27 17 L25 27 Q19 30 13 27Z" fill="#34D399"/><line x1="25" y1="18" x2="31" y2="13" stroke="#FDDCB5" stroke-width="2.5" stroke-linecap="round"/><rect x="29" y="10" width="7" height="2.5" rx="1.2" fill="#059669"/><rect x="28" y="9" width="2.5" height="4.5" rx="1.2" fill="#047857"/><rect x="34" y="9" width="2.5" height="4.5" rx="1.2" fill="#047857"/><line x1="12" y1="18" x2="8" y2="22" stroke="#FDDCB5" stroke-width="2.5" stroke-linecap="round"/><line x1="14" y1="27" x2="11" y2="33" stroke="#FDDCB5" stroke-width="2.5" stroke-linecap="round"/><line x1="22" y1="27" x2="25" y2="33" stroke="#FDDCB5" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="10" cy="34" rx="3" ry="1.8" fill="#F472B6"/><ellipse cx="26" cy="34" rx="3" ry="1.8" fill="#F472B6"/></svg>`,
@@ -406,9 +367,7 @@
       tech:`<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#FCE7F3"/><rect x="6" y="12" width="28" height="18" rx="3" fill="#1E1E2E"/><rect x="9" y="15" width="22" height="12" rx="2" fill="#0D0D1A"/><text x="11" y="21" font-size="4" fill="#F472B6" font-family="monospace" font-weight="500">&lt;AI&gt;</text><text x="11" y="25" font-size="3.5" fill="#34D399" font-family="monospace">def learn():</text><text x="13" y="29" font-size="3.5" fill="#38BDF8" font-family="monospace">  code=💻</text><rect x="10" y="31" width="20" height="2" rx="1" fill="#2D2D44"/><rect x="6" y="6" width="9" height="6" rx="2" fill="#A78BFA"/><text x="10.5" y="10.5" text-anchor="middle" font-size="4" fill="#fff" font-weight="600" font-family="sans-serif">AI</text><rect x="28" y="6" width="9" height="6" rx="2" fill="#F472B6"/><text x="32.5" y="10.5" text-anchor="middle" font-size="5" fill="#fff" font-weight="700" font-family="monospace">{}</text></svg>`
     };
 
-    /* ══════════════════════════════════════════
-       DATE HELPERS
-    ══════════════════════════════════════════ */
+    /* ── DATE HELPERS ── */
     function getTodayString() {
       const d = new Date();
       return d.getFullYear() + '-' +
@@ -420,9 +379,7 @@
       return d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
     }
 
-    /* ══════════════════════════════════════════
-       API — talk to Google Sheets
-    ══════════════════════════════════════════ */
+    /* ── API ── */
     async function apiGet(action, params={}) {
       params.action    = action;
       params.userEmail = currentUser.email;
@@ -437,9 +394,7 @@
       return await res.json();
     }
 
-    /* ══════════════════════════════════════════
-       LOGIN
-    ══════════════════════════════════════════ */
+    /* ── LOGIN ── */
     function startLogin() {
       const email = document.getElementById('email-input').value.trim().toLowerCase();
       const errEl = document.getElementById('login-error');
@@ -454,26 +409,34 @@
       document.getElementById('login-screen').style.display = 'none';
       startApp();
     }
-
     function signOut() {
       if (!confirm('Sign out?')) return;
       sessionStorage.removeItem('ht_user');
-      currentUser = null; habits = []; todayEntries = [];
+      currentUser = null; habits = []; allEntries = []; todayEntries = [];
       document.getElementById('login-screen').style.display = 'flex';
       document.getElementById('today-cards').innerHTML = '';
     }
 
-    /* ══════════════════════════════════════════
-       START APP
-    ══════════════════════════════════════════ */
+    /* ── START APP ── */
     async function startApp() {
       document.getElementById('loading-screen').style.display = 'flex';
       document.getElementById('user-pill').textContent = currentUser.name + ' · sign out';
       try {
         await apiPost('initHabits', {});
         habits = await apiGet('getHabits');
+
+        /*
+          KEY CHANGE in Step 4:
+          We now load ALL entries (full history)
+          instead of just today's entries.
+          This makes the contribution grid meaningful!
+        */
+        allEntries = await apiGet('getAllEntries');
+
+        // Filter today's entries from all entries
         const today = getTodayString();
-        todayEntries = await apiGet('getEntries', { date: today });
+        todayEntries = allEntries.filter(e => e.date === today);
+
         document.getElementById('tb-sub').textContent = formatDateNice(today);
         buildTodayScreen();
         document.getElementById('loading-screen').style.display = 'none';
@@ -486,13 +449,22 @@
       }
     }
 
-    /* ══════════════════════════════════════════
-       BUILD GRID — contribution squares
-    ══════════════════════════════════════════ */
+    /* ── BUILD GRID ── */
+    /*
+      Now uses allEntries (full history) instead of just todayEntries.
+
+      Each cell checks:
+      1. Is this day logged? → accent color
+      2. Is this day skipped? → gray #E5E5E5
+      3. Is this today? → add outline
+      4. Otherwise → light color (not recorded)
+    */
     function buildGrid(habitId, color, light) {
       const ROWS=4, COLS=22, today=new Date();
+      const todayStr = getTodayString();
       const wrap = document.createElement('div');
       wrap.className = 'grid-wrap';
+
       for (let r=0; r<ROWS; r++) {
         const row = document.createElement('div');
         row.className = 'grid-row';
@@ -501,17 +473,38 @@
           const cellDate = new Date(today);
           cellDate.setDate(today.getDate()-daysAgo);
           const dateStr  = cellDate.toISOString().split('T')[0];
-          const isLogged = todayEntries.some(e=>e.habitId===habitId && e.date===dateStr);
-          const isToday  = daysAgo===0;
+          const isToday  = dateStr === todayStr;
+
+          // Find entry for this habit on this date
+          const entry = allEntries.find(
+            e => e.habitId === habitId && e.date === dateStr
+          );
+
           const cell = document.createElement('div');
           cell.className = 'grid-cell';
-          if (isToday) {
-            cell.style.background    = isLogged ? color : light;
-            cell.style.outline       = '2px solid '+color;
-            cell.style.outlineOffset = '1px';
+
+          if (entry) {
+            if (entry.value && entry.value.skipped) {
+              // Skipped day → gray
+              cell.style.background = '#E5E5E5';
+              cell.title = dateStr + ' · rest day';
+            } else {
+              // Logged day → accent color
+              cell.style.background = color;
+              cell.title = dateStr + ' · logged ✓';
+            }
           } else {
-            cell.style.background = isLogged ? color : light;
+            // Not recorded → light color
+            cell.style.background = light;
+            cell.title = dateStr + (isToday ? ' · today' : ' · not recorded');
           }
+
+          // Today gets an outline regardless
+          if (isToday) {
+            cell.style.outline       = '2px solid ' + color;
+            cell.style.outlineOffset = '1px';
+          }
+
           row.appendChild(cell);
         }
         wrap.appendChild(row);
@@ -519,9 +512,34 @@
       return wrap;
     }
 
-    /* ══════════════════════════════════════════
-       BUILD TODAY SCREEN
-    ══════════════════════════════════════════ */
+    /* ── CALCULATE STREAK ── */
+    /*
+      Counts consecutive days logged going backwards from today.
+      Skipped days BREAK the streak (you didn't do the habit).
+      Days with no entry (before you started) don't break it.
+    */
+    function calcStreak(habitId) {
+      const today = new Date();
+      let streak  = 0;
+      for (let i = 0; i < 365; i++) {
+        const d = new Date(today);
+        d.setDate(today.getDate() - i);
+        const dateStr = d.toISOString().split('T')[0];
+        const entry   = allEntries.find(
+          e => e.habitId === habitId && e.date === dateStr
+        );
+        if (!entry) {
+          // No entry for this day
+          if (i === 0) continue; // today not logged yet — don't break streak
+          break; // gap in past — streak ends
+        }
+        if (entry.value && entry.value.skipped) break; // skipped — streak ends
+        streak++; // logged — count it
+      }
+      return streak;
+    }
+
+    /* ── BUILD TODAY SCREEN ── */
     function buildTodayScreen() {
       const container = document.getElementById('today-cards');
       container.innerHTML = '';
@@ -533,169 +551,196 @@
         </div>`;
         return;
       }
+
+      const today = getTodayString();
       habits.forEach(function(habit, idx) {
-        const isLogged = todayEntries.some(e=>e.habitId===habit.id);
+        const entry    = todayEntries.find(e=>e.habitId===habit.id);
+        const isLogged = entry && !entry.value?.skipped;
+        const isSkip   = entry && entry.value?.skipped;
+        const streak   = calcStreak(habit.id);
+
         const card = document.createElement('div');
         card.className = 'habit-card';
-        card.onclick   = () => goLog(idx); // tap card → open log for this habit
+        card.onclick   = () => goLog(idx);
+
         const topRow = document.createElement('div');
         topRow.className = 'card-top';
+
         const iconDiv = document.createElement('div');
         iconDiv.className = 'card-icon';
         iconDiv.innerHTML = ICONS[habit.id] || ICONS['mood'];
+
         const infoDiv = document.createElement('div');
         infoDiv.className = 'card-info';
+
+        // Streak text
+        let streakText = 'Tap to log';
+        if (streak > 0) streakText = '🔥 ' + streak + ' day streak';
+        if (isLogged)   streakText = '🔥 ' + streak + ' day streak · done!';
+        if (isSkip)     streakText = '— Rest day recorded';
+
         infoDiv.innerHTML = `
           <div class="card-name">${habit.name}</div>
-          <div class="card-streak">${isLogged ? '🔥 Logged today' : 'Tap to log'}</div>`;
+          <div class="card-streak">${streakText}</div>`;
+
         const checkEl = document.createElement('div');
-        checkEl.className = 'card-check' + (isLogged ? ' logged' : '');
-        checkEl.textContent = isLogged ? '✓' : '';
+        if (isLogged) {
+          checkEl.className   = 'card-check logged';
+          checkEl.textContent = '✓';
+        } else if (isSkip) {
+          checkEl.className   = 'card-check skipped';
+          checkEl.textContent = '—';
+        } else {
+          checkEl.className   = 'card-check';
+          checkEl.textContent = '';
+        }
+
         topRow.appendChild(iconDiv);
         topRow.appendChild(infoDiv);
         topRow.appendChild(checkEl);
         card.appendChild(topRow);
         card.appendChild(buildGrid(habit.id, habit.color, habit.light));
+
+        // Grid legend — shown once on first card
+        if (idx === 0) {
+          const legend = document.createElement('div');
+          legend.className = 'grid-legend';
+          legend.innerHTML = `
+            <div class="legend-item">
+              <div class="legend-dot" style="background:${habit.color}"></div>
+              <span>Logged</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:#E5E5E5"></div>
+              <span>Rest day</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:${habit.light};border:1px solid #ddd"></div>
+              <span>Not recorded</span>
+            </div>`;
+          card.appendChild(legend);
+        }
+
         container.appendChild(card);
       });
     }
 
-    /* ══════════════════════════════════════════
-       LOG SCREEN — Step 3
-       This is the new code!
-
-       goLog(idx) — called when tapping a card
-       or nav button. Sets curHabitIdx and
-       renders the log screen for that habit.
-    ══════════════════════════════════════════ */
+    /* ── LOG SCREEN ── */
     function goLog(idx) {
       curHabitIdx = idx;
-      // Switch to log screen
       const logBtn = document.querySelectorAll('.nav-btn')[1];
       navigate('log', 'Log entry', logBtn);
-      // Build the screen content
       renderLogScreen();
     }
 
-    /*
-      renderLogScreen()
-      ─────────────────
-      Builds the entire log screen for the
-      currently selected habit (curHabitIdx).
-
-      Called every time:
-      - User taps a habit card
-      - User taps ← or → nav buttons
-      - User taps a dot indicator
-    */
     function renderLogScreen() {
-      const habit = habits[curHabitIdx];
+      const habit  = habits[curHabitIdx];
       const screen = document.getElementById('screen-log');
-      screen.innerHTML = ''; // clear previous content
+      screen.innerHTML = '';
 
-      /* ── 1. NAV ROW (prev icon + dots + next icon) ── */
+      // Today's existing entry for this habit
+      const existing = todayEntries.find(e => e.habitId === habit.id);
+      const isLogged = existing && !existing.value?.skipped;
+      const isSkip   = existing && existing.value?.skipped;
+
+      /* NAV ROW */
       const navRow = document.createElement('div');
       navRow.className = 'log-nav';
-
-      // Prev button — shows previous habit's icon
-      const prevIdx = (curHabitIdx - 1 + habits.length) % habits.length;
+      const prevIdx = (curHabitIdx-1+habits.length)%habits.length;
+      const nextIdx = (curHabitIdx+1)%habits.length;
       const prevBtn = document.createElement('button');
       prevBtn.className = 'log-nav-btn';
-      prevBtn.innerHTML = ICONS[habits[prevIdx].id] || '←';
-      prevBtn.onclick   = () => { curHabitIdx = prevIdx; renderLogScreen(); };
-      prevBtn.title     = habits[prevIdx].name;
-
-      // Dots row
+      prevBtn.innerHTML = ICONS[habits[prevIdx].id];
+      prevBtn.onclick   = ()=>{ curHabitIdx=prevIdx; renderLogScreen(); };
       const dotsWrap = document.createElement('div');
       dotsWrap.className = 'log-dots';
-      habits.forEach((_, i) => {
+      habits.forEach((_,i)=>{
         const dot = document.createElement('div');
-        dot.className = 'log-dot' + (i === curHabitIdx ? ' active' : '');
-        // Active dot uses habit's accent color
-        dot.style.background = i === curHabitIdx ? habit.color : '';
-        dot.onclick = () => { curHabitIdx = i; renderLogScreen(); };
+        dot.className = 'log-dot'+(i===curHabitIdx?' active':'');
+        dot.style.background = i===curHabitIdx ? habit.color : '';
+        dot.onclick = ()=>{ curHabitIdx=i; renderLogScreen(); };
         dotsWrap.appendChild(dot);
       });
-
-      // Next button — shows next habit's icon
-      const nextIdx = (curHabitIdx + 1) % habits.length;
       const nextBtn = document.createElement('button');
       nextBtn.className = 'log-nav-btn';
-      nextBtn.innerHTML = ICONS[habits[nextIdx].id] || '→';
-      nextBtn.onclick   = () => { curHabitIdx = nextIdx; renderLogScreen(); };
-      nextBtn.title     = habits[nextIdx].name;
-
+      nextBtn.innerHTML = ICONS[habits[nextIdx].id];
+      nextBtn.onclick   = ()=>{ curHabitIdx=nextIdx; renderLogScreen(); };
       navRow.appendChild(prevBtn);
       navRow.appendChild(dotsWrap);
       navRow.appendChild(nextBtn);
 
-      /* ── 2. HEADER CARD ── */
+      /* HEADER */
       const header = document.createElement('div');
       header.className = 'log-header';
-      header.style.background = habit.light; // habit's light color
-      header.innerHTML = `
-        <div class="log-header-icon">${ICONS[habit.id] || ICONS['mood']}</div>
-        <div class="log-header-name" style="color:${habit.color}">${habit.name}</div>
-        <div class="log-header-sub"  style="color:${habit.color}">${curHabitIdx + 1} of ${habits.length}</div>`;
+      header.style.background = habit.light;
 
-      /* ── 3. FORM — different per habit type ── */
-      const formWrap = document.createElement('div');
-
-      if (habit.type === 'sleep') {
-        formWrap.innerHTML = buildSleepForm(habit);
-      } else if (habit.type === 'exercise') {
-        formWrap.innerHTML = buildExerciseForm(habit);
-      } else if (habit.type === 'mood') {
-        formWrap.innerHTML = buildMoodForm(habit);
-      } else {
-        // 'study' type covers finance, language, tech
-        formWrap.innerHTML = buildStudyForm(habit);
+      // Status badge — shows if already logged today
+      let badgeHTML = '';
+      if (isLogged) {
+        badgeHTML = `<div class="log-status-badge" style="background:${habit.color}20;color:${habit.color}">
+          ✓ Already logged today — tap Save to update
+        </div>`;
+      } else if (isSkip) {
+        badgeHTML = `<div class="log-status-badge" style="background:#f0f0f0;color:#888">
+          — Rest day recorded — tap to change
+        </div>`;
       }
 
-      /* ── 4. SAVE BUTTON ── */
-      const saveBtn = document.createElement('button');
-      saveBtn.className = 'save-btn';
-      saveBtn.id        = 'save-btn';
-      saveBtn.style.background = habit.color;
-      saveBtn.textContent = 'Save ' + habit.name.toLowerCase() + ' ✓';
-      saveBtn.onclick = () => saveEntry(habit);
+      header.innerHTML = `
+        <div class="log-header-icon">${ICONS[habit.id]}</div>
+        <div class="log-header-name" style="color:${habit.color}">${habit.name}</div>
+        <div class="log-header-sub"  style="color:${habit.color}">${curHabitIdx+1} of ${habits.length}</div>
+        ${badgeHTML}`;
 
-      /* ── 5. SUCCESS MESSAGE ── */
+      /* FORM */
+      const formWrap = document.createElement('div');
+      if (habit.type==='sleep')         formWrap.innerHTML = buildSleepForm(habit);
+      else if (habit.type==='exercise') formWrap.innerHTML = buildExerciseForm(habit);
+      else if (habit.type==='mood')     formWrap.innerHTML = buildMoodForm(habit);
+      else                              formWrap.innerHTML = buildStudyForm(habit);
+
+      /* SAVE AREA — two buttons */
+      const saveArea = document.createElement('div');
+      saveArea.className = 'save-area';
+      saveArea.innerHTML = `
+        <div class="save-area-label">How did it go today?</div>
+        <div class="save-btns">
+          <button class="save-btn primary" id="btn-did-it"
+            style="background:${habit.color}">
+            ✓ I did it!
+          </button>
+          <button class="save-btn secondary" id="btn-rest">
+            — Rest day
+          </button>
+        </div>`;
+
       const successMsg = document.createElement('div');
       successMsg.className = 'save-success';
       successMsg.id = 'save-success';
-      successMsg.textContent = '✅ Saved! Great job today 🎉';
 
-      /* ── ASSEMBLE ── */
+      const skipMsg = document.createElement('div');
+      skipMsg.className = 'save-skip';
+      skipMsg.id = 'save-skip';
+
+      /* ASSEMBLE */
       screen.appendChild(navRow);
       screen.appendChild(header);
       screen.appendChild(formWrap);
-      screen.appendChild(saveBtn);
+      screen.appendChild(saveArea);
       screen.appendChild(successMsg);
+      screen.appendChild(skipMsg);
 
-      // After building, wire up sleep time pickers
-      if (habit.type === 'sleep') {
-        wireSleepCalc(habit);
-      }
+      // Wire up buttons
+      document.getElementById('btn-did-it').onclick = () => saveEntry(habit, false);
+      document.getElementById('btn-rest').onclick    = () => saveEntry(habit, true);
 
-      // After building, wire up mood buttons
-      if (habit.type === 'mood') {
-        wireMoodBtns(habit);
-      }
+      // Wire form logic
+      if (habit.type==='sleep') wireSleepCalc(habit);
+      if (habit.type==='mood')  selectMood(3);
     }
 
-    /* ══════════════════════════════════════════
-       FORM BUILDERS
-       Each returns an HTML string for that habit.
-    ══════════════════════════════════════════ */
-
-    function buildSleepForm(habit) {
-      /*
-        Sleep form:
-        - Bedtime picker (time input)
-        - Wake up picker (time input)
-        - Auto-calculated duration pill
-      */
+    /* ── FORM BUILDERS ── */
+    function buildSleepForm(h) {
       return `
         <div class="form-group">
           <label class="form-label">Bedtime</label>
@@ -705,23 +750,19 @@
           <label class="form-label">Wake up</label>
           <input class="form-input" type="time" id="inp-wakeup" value="06:30">
         </div>
-        <div class="duration-pill" id="dur-pill" style="background:${habit.light}">
-          <div class="duration-val" id="dur-val" style="color:${habit.color}">8h 0m</div>
-          <div class="duration-lbl" style="color:${habit.color}">calculated sleep duration</div>
+        <div class="duration-pill" style="background:${h.light}">
+          <div class="duration-val" id="dur-val" style="color:${h.color}">8h 0m</div>
+          <div class="duration-lbl" style="color:${h.color}">calculated sleep duration</div>
         </div>`;
     }
-
-    function buildExerciseForm(habit) {
+    function buildExerciseForm(h) {
       return `
         <div class="form-group">
           <label class="form-label">Activity type</label>
           <select class="form-input" id="inp-activity">
-            <option>Gym workout</option>
-            <option>Running</option>
-            <option>Walking</option>
-            <option>Cycling</option>
-            <option>Yoga / stretching</option>
-            <option>Swimming</option>
+            <option>Gym workout</option><option>Running</option>
+            <option>Walking</option><option>Cycling</option>
+            <option>Yoga / stretching</option><option>Swimming</option>
             <option>Other</option>
           </select>
         </div>
@@ -734,21 +775,12 @@
           <input class="form-input" type="text" id="inp-notes" placeholder="e.g. 5km run, chest day...">
         </div>`;
     }
-
-    function buildMoodForm(habit) {
-      /*
-        Mood form:
-        - 5 emoji buttons (😞 😕 😐 😊 😄)
-        - Optional note text input
-      */
+    function buildMoodForm(h) {
       const emojis = ['😞','😕','😐','😊','😄'];
       const labels = ['Awful','Bad','OK','Good','Great'];
-      let btns = '';
-      emojis.forEach((emoji, i) => {
-        btns += `<button class="mood-btn" id="mood-${i+1}"
-          onclick="selectMood(${i+1})"
-          title="${labels[i]}">${emoji}</button>`;
-      });
+      let btns = emojis.map((e,i)=>
+        `<button class="mood-btn" id="mood-${i+1}" onclick="selectMood(${i+1})" title="${labels[i]}">${e}</button>`
+      ).join('');
       return `
         <div class="form-group">
           <label class="form-label">How are you feeling today?</label>
@@ -756,123 +788,62 @@
         </div>
         <div class="form-group">
           <label class="form-label">Note (optional)</label>
-          <input class="form-input" type="text" id="inp-mood-note"
-            placeholder="What's on your mind?">
+          <input class="form-input" type="text" id="inp-mood-note" placeholder="What's on your mind?">
         </div>`;
     }
-
-    function buildStudyForm(habit) {
-      /*
-        Study form — used for Finance, Language, Technology.
-        Labels change per habit.
-      */
-      const configs = {
-        finance:  {
-          topicLabel: 'Topic / subject',
-          topicPlaceholder: 'e.g. investing, budgeting, stocks',
-          resourceLabel: 'Resource type',
-          resources: ['Book','Podcast','YouTube','Course','News / article','Other']
-        },
-        language: {
-          topicLabel: 'Language',
-          topicPlaceholder: 'e.g. Japanese, English, Thai',
-          resourceLabel: 'Activity type',
-          resources: ['Anki / flashcards','Reading','Listening','Speaking practice','Writing','Grammar study']
-        },
-        tech: {
-          topicLabel: 'Topic / skill',
-          topicPlaceholder: 'e.g. HTML, JavaScript, Python, AI',
-          resourceLabel: 'Resource',
-          resources: ['YouTube','Online course','Book','Documentation','Project practice','Other']
-        }
-      };
-
-      // Default to tech config if id not found
-      const cfg = configs[habit.id] || configs['tech'];
-
-      let options = cfg.resources.map(r => `<option>${r}</option>`).join('');
-
+    function buildStudyForm(h) {
+      const cfg = {
+        finance:  { tl:'Topic / subject', tp:'e.g. investing, budgeting, stocks',    rl:'Resource type',  res:['Book','Podcast','YouTube','Course','News / article','Other'] },
+        language: { tl:'Language',         tp:'e.g. Japanese, English, Thai',          rl:'Activity type',  res:['Anki / flashcards','Reading','Listening','Speaking practice','Writing','Grammar'] },
+        tech:     { tl:'Topic / skill',    tp:'e.g. HTML, JavaScript, Python, AI',    rl:'Resource',       res:['YouTube','Online course','Book','Documentation','Project practice','Other'] }
+      }[h.id] || { tl:'Topic', tp:'', rl:'Resource', res:['Other'] };
       return `
         <div class="form-group">
-          <label class="form-label">${cfg.topicLabel}</label>
-          <input class="form-input" type="text" id="inp-topic"
-            placeholder="${cfg.topicPlaceholder}">
+          <label class="form-label">${cfg.tl}</label>
+          <input class="form-input" type="text" id="inp-topic" placeholder="${cfg.tp}">
         </div>
         <div class="form-group">
           <label class="form-label">Duration (minutes)</label>
-          <input class="form-input" type="number" id="inp-duration"
-            value="30" min="1" max="480">
+          <input class="form-input" type="number" id="inp-duration" value="30" min="1" max="480">
         </div>
         <div class="form-group">
-          <label class="form-label">${cfg.resourceLabel}</label>
-          <select class="form-input" id="inp-resource">${options}</select>
+          <label class="form-label">${cfg.rl}</label>
+          <select class="form-input" id="inp-resource">
+            ${cfg.res.map(r=>`<option>${r}</option>`).join('')}
+          </select>
         </div>`;
     }
 
-    /* ══════════════════════════════════════════
-       FORM WIRING — connect inputs to logic
-    ══════════════════════════════════════════ */
-
-    /*
-      wireSleepCalc()
-      ───────────────
-      Listens for changes on bedtime/wakeup inputs.
-      Calculates duration and updates the pill display.
-    */
+    /* ── FORM WIRING ── */
     function wireSleepCalc(habit) {
       function calc() {
         const bed  = document.getElementById('inp-bedtime')?.value;
         const wake = document.getElementById('inp-wakeup')?.value;
-        if (!bed || !wake) return;
-
-        // Parse hours and minutes
-        const [bh, bm] = bed.split(':').map(Number);
-        const [wh, wm] = wake.split(':').map(Number);
-
-        // Calculate minutes difference
-        // If wake < bed (e.g. bed 23:00, wake 07:00), add 24 hours
-        let totalMins = (wh * 60 + wm) - (bh * 60 + bm);
-        if (totalMins < 0) totalMins += 1440; // 1440 = 24 * 60
-
-        const hours = Math.floor(totalMins / 60);
-        const mins  = totalMins % 60;
-
-        // Update the display
-        const durEl = document.getElementById('dur-val');
-        if (durEl) durEl.textContent = hours + 'h ' + (mins > 0 ? mins + 'm' : '');
+        if (!bed||!wake) return;
+        const [bh,bm]=bed.split(':').map(Number);
+        const [wh,wm]=wake.split(':').map(Number);
+        let mins=(wh*60+wm)-(bh*60+bm);
+        if(mins<0) mins+=1440;
+        const h=Math.floor(mins/60), m=mins%60;
+        const el=document.getElementById('dur-val');
+        if(el) el.textContent=h+'h '+(m>0?m+'m':'');
       }
-
-      // Run on every change
-      document.getElementById('inp-bedtime')?.addEventListener('change', calc);
-      document.getElementById('inp-wakeup')?.addEventListener('change', calc);
-      calc(); // run once on load
+      document.getElementById('inp-bedtime')?.addEventListener('change',calc);
+      document.getElementById('inp-wakeup')?.addEventListener('change',calc);
+      calc();
     }
-
-    /*
-      selectMood(score)
-      ─────────────────
-      Highlights the selected mood button.
-      Stores selected score in a variable.
-    */
-    let selectedMood = 3; // default = OK 😐
 
     function selectMood(score) {
       selectedMood = score;
-      const habit = habits[curHabitIdx];
-
-      // Update all 5 buttons
-      for (let i = 1; i <= 5; i++) {
-        const btn = document.getElementById('mood-' + i);
+      const habit  = habits[curHabitIdx];
+      for (let i=1; i<=5; i++) {
+        const btn = document.getElementById('mood-'+i);
         if (!btn) continue;
-        if (i === score) {
-          // Selected style
-          btn.classList.add('selected');
+        if (i===score) {
           btn.style.borderColor = habit.color;
           btn.style.background  = habit.light;
           btn.style.transform   = 'scale(1.12)';
         } else {
-          // Unselected style
-          btn.classList.remove('selected');
           btn.style.borderColor = '';
           btn.style.background  = '';
           btn.style.transform   = '';
@@ -880,61 +851,52 @@
       }
     }
 
-    function wireMoodBtns(habit) {
-      // Set default selection to 😐 (3)
-      selectMood(3);
-    }
+    /* ── SAVE ENTRY ── */
+    /*
+      saveEntry(habit, isSkip)
+      ─────────────────────────
+      isSkip = false → "I did it!" → saves form data
+      isSkip = true  → "Rest day"  → saves {skipped:true}
+    */
+    async function saveEntry(habit, isSkip) {
+      const didBtn  = document.getElementById('btn-did-it');
+      const restBtn = document.getElementById('btn-rest');
+      const succEl  = document.getElementById('save-success');
+      const skipEl  = document.getElementById('save-skip');
 
-    /* ══════════════════════════════════════════
-       SAVE ENTRY
-       Collects form data and sends to Google Sheets.
-    ══════════════════════════════════════════ */
-    async function saveEntry(habit) {
-      const saveBtn    = document.getElementById('save-btn');
-      const successMsg = document.getElementById('save-success');
-
-      // Show saving state
-      saveBtn.textContent = 'Saving...';
-      saveBtn.classList.add('saving');
-      saveBtn.disabled = true;
+      // Disable both buttons while saving
+      didBtn.disabled = true;
+      restBtn.disabled = true;
+      didBtn.textContent  = isSkip ? '✓ I did it!' : 'Saving...';
+      restBtn.textContent = isSkip ? 'Saving...'   : '— Rest day';
 
       try {
-        // Collect data from form based on habit type
         let value = {};
 
-        if (habit.type === 'sleep') {
-          const bed  = document.getElementById('inp-bedtime').value;
-          const wake = document.getElementById('inp-wakeup').value;
-          const [bh,bm] = bed.split(':').map(Number);
-          const [wh,wm] = wake.split(':').map(Number);
-          let mins = (wh*60+wm)-(bh*60+bm);
-          if (mins<0) mins+=1440;
-          value = {
-            bedtime:  bed,
-            wakeup:   wake,
-            duration: parseFloat((mins/60).toFixed(2))
-          };
-
-        } else if (habit.type === 'exercise') {
-          value = {
-            activity: document.getElementById('inp-activity').value,
-            duration: Number(document.getElementById('inp-duration').value),
-            notes:    document.getElementById('inp-notes').value
-          };
-
-        } else if (habit.type === 'mood') {
-          value = {
-            score: selectedMood,
-            note:  document.getElementById('inp-mood-note').value
-          };
-
+        if (isSkip) {
+          // Rest day — just record skipped:true
+          value = { skipped: true };
         } else {
-          // study type (finance, language, tech)
-          value = {
-            topic:    document.getElementById('inp-topic').value,
-            duration: Number(document.getElementById('inp-duration').value),
-            resource: document.getElementById('inp-resource').value
-          };
+          // Collect form data
+          if (habit.type==='sleep') {
+            const bed=document.getElementById('inp-bedtime').value;
+            const wake=document.getElementById('inp-wakeup').value;
+            const [bh,bm]=bed.split(':').map(Number);
+            const [wh,wm]=wake.split(':').map(Number);
+            let mins=(wh*60+wm)-(bh*60+bm);
+            if(mins<0) mins+=1440;
+            value={ bedtime:bed, wakeup:wake, duration:parseFloat((mins/60).toFixed(2)) };
+          } else if (habit.type==='exercise') {
+            value={ activity:document.getElementById('inp-activity').value,
+                    duration:Number(document.getElementById('inp-duration').value),
+                    notes:document.getElementById('inp-notes').value };
+          } else if (habit.type==='mood') {
+            value={ score:selectedMood, note:document.getElementById('inp-mood-note').value };
+          } else {
+            value={ topic:document.getElementById('inp-topic').value,
+                    duration:Number(document.getElementById('inp-duration').value),
+                    resource:document.getElementById('inp-resource').value };
+          }
         }
 
         // Send to Google Sheets
@@ -945,33 +907,32 @@
         });
 
         if (result.success) {
-          // Update local todayEntries so Today screen updates immediately
-          // Remove old entry for this habit today (if any)
-          todayEntries = todayEntries.filter(e => e.habitId !== habit.id);
-          // Add the new entry
-          todayEntries.push({
-            id:      result.id,
-            habitId: habit.id,
-            date:    getTodayString(),
-            value:   value
-          });
+          // Update local state
+          allEntries   = allEntries.filter(e=>!(e.habitId===habit.id && e.date===getTodayString()));
+          todayEntries = todayEntries.filter(e=>e.habitId!==habit.id);
+          const newEntry = { id:result.id, habitId:habit.id, date:getTodayString(), value };
+          allEntries.push(newEntry);
+          todayEntries.push(newEntry);
 
-          // Show success message
-          saveBtn.textContent = 'Saved ✓';
-          saveBtn.style.background = '#059669'; // green
-          successMsg.style.display = 'block';
+          // Show appropriate message
+          if (isSkip) {
+            skipEl.textContent  = '— Rest day recorded. See you tomorrow! 💪';
+            skipEl.style.display = 'block';
+            succEl.style.display = 'none';
+          } else {
+            succEl.textContent  = '✅ Saved! Great job today 🎉';
+            succEl.style.display = 'block';
+            skipEl.style.display = 'none';
+          }
 
-          // Rebuild today screen so checkmark updates
+          // Restore buttons
+          didBtn.textContent  = '✓ I did it!';
+          restBtn.textContent = '— Rest day';
+          didBtn.disabled  = false;
+          restBtn.disabled = false;
+
+          // Rebuild today screen to update checkmarks + grid
           buildTodayScreen();
-
-          // After 2 seconds, restore button
-          setTimeout(() => {
-            saveBtn.textContent      = 'Save ' + habit.name.toLowerCase() + ' ✓';
-            saveBtn.style.background = habit.color;
-            saveBtn.classList.remove('saving');
-            saveBtn.disabled         = false;
-            successMsg.style.display = 'none';
-          }, 2000);
 
         } else {
           throw new Error(result.error || 'Save failed');
@@ -979,16 +940,16 @@
 
       } catch(err) {
         console.error('Save error:', err);
-        saveBtn.textContent      = 'Error — tap to retry';
-        saveBtn.style.background = '#DC2626'; // red
-        saveBtn.classList.remove('saving');
-        saveBtn.disabled = false;
+        didBtn.textContent  = '✓ I did it!';
+        restBtn.textContent = '— Rest day';
+        didBtn.disabled  = false;
+        restBtn.disabled = false;
+        didBtn.style.background = '#DC2626';
+        setTimeout(()=>{ didBtn.style.background=habit.color; }, 2000);
       }
     }
 
-    /* ══════════════════════════════════════════
-       NAVIGATION
-    ══════════════════════════════════════════ */
+    /* ── NAVIGATION ── */
     function navigate(name, title, btn) {
       document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
       document.getElementById('screen-'+name).classList.add('active');
@@ -996,17 +957,10 @@
       if (btn) btn.classList.add('active');
       document.getElementById('tb-title').textContent = title;
       document.getElementById('content').scrollTop = 0;
-
-      // When switching TO log screen without a specific habit,
-      // default to first habit
-      if (name === 'log' && habits.length > 0) {
-        renderLogScreen();
-      }
+      if (name==='log' && habits.length>0) renderLogScreen();
     }
 
-    /* ══════════════════════════════════════════
-       STARTUP
-    ══════════════════════════════════════════ */
+    /* ── STARTUP ── */
     window.addEventListener('load', function() {
       const saved = sessionStorage.getItem('ht_user');
       if (saved) {
