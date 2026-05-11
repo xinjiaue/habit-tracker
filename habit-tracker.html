@@ -18,6 +18,8 @@
       color:var(--text); height:100dvh;
       display:flex; flex-direction:column; overflow:hidden;
     }
+
+    /* TOP BAR */
     #top-bar {
       background:var(--white); border-bottom:1px solid var(--border);
       padding:14px 18px 12px; flex-shrink:0;
@@ -30,10 +32,14 @@
       border-radius:20px; padding:4px 10px;
       font-size:10px; color:var(--muted); cursor:pointer; white-space:nowrap;
     }
+
+    /* CONTENT */
     #content { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
     #content::-webkit-scrollbar { display:none; }
     .screen { display:none; }
     .screen.active { display:block; }
+
+    /* BOTTOM NAV */
     #bottom-nav {
       background:var(--white); border-top:1px solid var(--border);
       display:flex; flex-shrink:0;
@@ -89,80 +95,87 @@
     .loading-text { font-size:14px; color:var(--muted); }
     @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
 
-    /* TODAY SCREEN */
+    /* ════════════════════════════════
+       TODAY SCREEN — 2 cards per row
+       NO GRID — just clean cards
+    ════════════════════════════════ */
     #screen-today { padding:14px; }
+
     .section-label {
       font-size:10px; font-weight:500; color:var(--muted);
       letter-spacing:.08em; text-transform:uppercase; margin-bottom:12px;
     }
 
-    /*
-      HABIT GRID — 2 cards per row
-      display:grid with 2 equal columns
-    */
+    /* 2-column grid layout */
     .habits-grid {
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:10px;
     }
 
-    /*
-      HABIT CARD — square-ish card
-      Each card shows:
-      - colored top area with icon
-      - habit name
-      - status text
-      - checkmark
-    */
+    /* Each habit card */
     .habit-card {
       background:var(--white);
-      border:1px solid var(--border);
+      border:1.5px solid var(--border);
       border-radius:16px;
       cursor:pointer;
-      transition:transform 0.1s, box-shadow 0.15s;
       overflow:hidden;
+      transition:transform 0.12s, box-shadow 0.12s;
     }
-    .habit-card:active { transform:scale(0.97); }
+    .habit-card:active {
+      transform:scale(0.96);
+      box-shadow:0 2px 8px rgba(0,0,0,0.08);
+    }
 
-    /* Top colored area — shows icon centered */
-    .card-top {
-      padding:18px 12px 14px;
+    /* Card top — colored bg + icon */
+    .card-color-area {
+      padding:20px 12px 16px;
       display:flex;
       flex-direction:column;
       align-items:center;
-      gap:8px;
+      gap:0;
       position:relative;
+      min-height:100px;
     }
 
     /* Icon */
-    .card-icon { width:52px; height:52px; }
+    .card-icon { width:56px; height:56px; }
     .card-icon svg { width:100%; height:100%; }
 
-    /* Checkmark badge — top right corner */
-    .card-check {
+    /* Status badge — top right */
+    .card-badge {
       position:absolute;
       top:8px; right:8px;
       width:22px; height:22px;
       border-radius:50%;
-      border:1.5px solid var(--border);
+      border:1.5px solid rgba(0,0,0,0.1);
       display:flex; align-items:center; justify-content:center;
-      font-size:10px; color:var(--white);
-      background:var(--white);
-      transition:all 0.2s;
+      font-size:11px; font-weight:500;
+      background:rgba(255,255,255,0.7);
+      color:var(--muted);
     }
-    .card-check.logged  { background:var(--text); border-color:var(--text); }
-    .card-check.skipped { background:#E5E5E5; border-color:#E5E5E5; color:#888; }
+    .card-badge.done {
+      background:var(--text);
+      border-color:var(--text);
+      color:var(--white);
+    }
+    .card-badge.skip {
+      background:#E5E5E5;
+      border-color:#ccc;
+      color:#888;
+      font-size:13px;
+    }
 
-    /* Bottom info area */
+    /* Card bottom — name + status */
     .card-info {
       padding:10px 12px 12px;
       border-top:1px solid var(--border);
     }
     .card-name {
-      font-size:13px; font-weight:500; color:var(--text);
-      margin-bottom:3px;
+      font-size:13px; font-weight:500;
+      color:var(--text); margin-bottom:3px;
     }
-    .card-streak { font-size:10px; color:var(--muted); }
+    .card-status { font-size:10px; color:var(--muted); }
 
     .error-banner {
       background:#FEE2E2; border:1px solid #FCA5A5;
@@ -170,106 +183,71 @@
       margin-bottom:12px; font-size:12px; color:#7F1D1D; display:none;
     }
 
-    /* LOG SCREEN */
+    /* ════════════════════════════════
+       LOG SCREEN
+    ════════════════════════════════ */
     #screen-log { padding:14px; }
     .log-nav {
       display:flex; align-items:center;
-      justify-content:space-between;
-      margin-bottom:12px; gap:8px;
+      justify-content:space-between; margin-bottom:12px; gap:8px;
     }
     .log-nav-btn {
       width:44px; height:40px;
       background:var(--surface); border:1px solid var(--border);
       border-radius:10px; cursor:pointer;
-      display:flex; align-items:center; justify-content:center;
-      flex-shrink:0; transition:background 0.15s;
+      display:flex; align-items:center; justify-content:center; flex-shrink:0;
     }
-    .log-nav-btn:active { background:var(--border); }
     .log-nav-btn svg { width:24px; height:24px; }
-    .log-dots {
-      display:flex; align-items:center;
-      justify-content:center; gap:5px; flex:1;
-    }
-    .log-dot {
-      height:7px; border-radius:4px;
-      background:var(--border); cursor:pointer;
-      transition:all 0.2s; width:7px;
-    }
+    .log-dots { display:flex; align-items:center; justify-content:center; gap:5px; flex:1; }
+    .log-dot { height:7px; border-radius:4px; background:var(--border); cursor:pointer; transition:all 0.2s; width:7px; }
     .log-dot.active { width:16px; }
-    .log-header {
-      border-radius:16px; padding:20px;
-      margin-bottom:16px; text-align:center;
-    }
+    .log-header { border-radius:16px; padding:20px; margin-bottom:16px; text-align:center; }
     .log-header-icon { display:flex; justify-content:center; margin-bottom:10px; }
     .log-header-icon svg { width:64px; height:64px; }
     .log-header-name { font-size:20px; font-weight:500; margin-bottom:4px; }
     .log-header-sub  { font-size:12px; opacity:.6; }
-
-    /* Today's status badge on log header */
     .log-status-badge {
       display:inline-flex; align-items:center; gap:5px;
       border-radius:20px; padding:4px 12px;
       font-size:11px; font-weight:500; margin-top:8px;
     }
-
     .form-group { margin-bottom:12px; }
     .form-label {
       font-size:10px; font-weight:500; color:var(--muted);
-      text-transform:uppercase; letter-spacing:.06em;
-      display:block; margin-bottom:5px;
+      text-transform:uppercase; letter-spacing:.06em; display:block; margin-bottom:5px;
     }
     .form-input {
-      width:100%;
-      background:var(--surface); border:1.5px solid var(--border);
-      border-radius:10px; padding:11px 14px;
-      font-size:15px; font-family:var(--font);
-      color:var(--text); outline:none; transition:border-color 0.15s;
+      width:100%; background:var(--surface); border:1.5px solid var(--border);
+      border-radius:10px; padding:11px 14px; font-size:15px;
+      font-family:var(--font); color:var(--text); outline:none; transition:border-color 0.15s;
       appearance:none; -webkit-appearance:none;
     }
     .form-input:focus { border-color:var(--text); }
-    .duration-pill {
-      border-radius:12px; padding:14px;
-      text-align:center; margin-bottom:12px;
-    }
+    .duration-pill { border-radius:12px; padding:14px; text-align:center; margin-bottom:12px; }
     .duration-val { font-size:30px; font-weight:500; line-height:1; }
     .duration-lbl { font-size:11px; opacity:.6; margin-top:4px; }
     .mood-row { display:flex; gap:8px; }
     .mood-btn {
-      flex:1; background:var(--surface);
-      border:2px solid var(--border);
-      border-radius:12px; padding:10px 4px;
-      font-size:22px; cursor:pointer;
-      text-align:center; transition:all 0.15s;
-      font-family:var(--font);
+      flex:1; background:var(--surface); border:2px solid var(--border);
+      border-radius:12px; padding:10px 4px; font-size:22px; cursor:pointer;
+      text-align:center; transition:all 0.15s; font-family:var(--font);
     }
 
-    /*
-      SAVE AREA — new design!
-      Shows two buttons side by side:
-      "I did it!" and "Rest day"
-    */
-    .save-area {
-      background:var(--surface); border-radius:12px;
-      padding:14px; margin-top:4px;
-    }
+    /* SAVE AREA */
+    .save-area { background:var(--surface); border-radius:12px; padding:14px; margin-top:4px; }
     .save-area-label {
       font-size:11px; font-weight:500; color:var(--muted);
-      text-transform:uppercase; letter-spacing:.06em;
-      margin-bottom:10px; text-align:center;
+      text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; text-align:center;
     }
     .save-btns { display:flex; gap:10px; }
     .save-btn {
       flex:1; border:none; border-radius:12px; padding:14px 8px;
-      font-size:14px; font-weight:500;
-      font-family:var(--font); cursor:pointer;
-      transition:opacity 0.15s, transform 0.1s;
+      font-size:14px; font-weight:500; font-family:var(--font);
+      cursor:pointer; transition:opacity 0.15s, transform 0.1s;
     }
     .save-btn:active { transform:scale(0.98); }
     .save-btn.primary { color:var(--white); }
-    .save-btn.secondary {
-      background:var(--white); color:#888;
-      border:1.5px solid var(--border);
-    }
+    .save-btn.secondary { background:var(--white); color:#888; border:1.5px solid var(--border); }
     .save-btn:disabled { opacity:.6; cursor:not-allowed; }
     .save-success {
       background:#D1FAE5; border:1px solid #6EE7B7;
@@ -284,16 +262,11 @@
       margin-top:10px; display:none;
     }
 
-    /* REPORTS + SETTINGS placeholder */
+    /* PLACEHOLDERS */
     #screen-reports, #screen-settings { padding:14px; }
-    .placeholder-screen {
-      text-align:center; padding:48px 20px; color:var(--muted);
-    }
+    .placeholder-screen { text-align:center; padding:48px 20px; color:var(--muted); }
     .placeholder-screen .ph-icon  { font-size:40px; margin-bottom:12px; }
-    .placeholder-screen .ph-title {
-      font-size:15px; font-weight:500;
-      color:var(--text); margin-bottom:6px;
-    }
+    .placeholder-screen .ph-title { font-size:15px; font-weight:500; color:var(--text); margin-bottom:6px; }
   </style>
 </head>
 <body>
@@ -326,14 +299,20 @@
   </div>
 
   <div id="content">
+
+    <!-- TODAY — 6 cards, 2 per row, NO GRID -->
     <div class="screen active" id="screen-today">
-      <div class="error-banner" id="error-banner"></div>
-      <div class="section-label">Today's habits</div>
-      <div id="today-cards"></div>
+      <div style="padding:14px">
+        <div class="error-banner" id="error-banner"></div>
+        <div class="section-label">Today's habits</div>
+        <div class="habits-grid" id="today-cards"></div>
+      </div>
     </div>
 
+    <!-- LOG -->
     <div class="screen" id="screen-log"></div>
 
+    <!-- REPORTS -->
     <div class="screen" id="screen-reports">
       <div class="placeholder-screen">
         <div class="ph-icon">📊</div>
@@ -342,6 +321,7 @@
       </div>
     </div>
 
+    <!-- SETTINGS -->
     <div class="screen" id="screen-settings">
       <div class="placeholder-screen">
         <div class="ph-icon">⚙️</div>
@@ -349,6 +329,7 @@
         Coming in Step 6
       </div>
     </div>
+
   </div>
 
   <nav id="bottom-nav">
@@ -371,10 +352,14 @@
 
     let currentUser  = null;
     let habits       = [];
-    let allEntries   = []; // ALL entries (full history) — NEW in Step 4
-    let todayEntries = []; // just today's entries (filtered from allEntries)
+    let allEntries   = [];
+    let todayEntries = [];
     let curHabitIdx  = 0;
     let selectedMood = 3;
+
+    /* ── HABIT ORDER ── */
+    /* Mood → Sleep → Exercise → Language → Finance → Technology */
+    const HABIT_ORDER = ['mood','sleep','exercise','language','finance','tech'];
 
     /* ── ICONS ── */
     const ICONS = {
@@ -403,21 +388,20 @@
       params.action    = action;
       params.userEmail = currentUser.email;
       const url = SCRIPT_URL + '?' + new URLSearchParams(params).toString();
-      const res = await fetch(url, { redirect: 'follow' });
+      const res = await fetch(url, { redirect:'follow' });
       const text = await res.text();
       return JSON.parse(text);
     }
     async function apiPost(action, body={}) {
       body.action    = action;
       body.userEmail = currentUser.email;
-      // Send as GET with all params in URL — avoids CORS preflight issues
-      const flat = { action: body.action, userEmail: body.userEmail };
-      if (body.habitId)  flat.habitId  = body.habitId;
-      if (body.date)     flat.date      = body.date;
-      if (body.value)    flat.value     = JSON.stringify(body.value);
-      if (body.id)       flat.id        = body.id;
+      const flat = { action:body.action, userEmail:body.userEmail };
+      if (body.habitId) flat.habitId = body.habitId;
+      if (body.date)    flat.date    = body.date;
+      if (body.value)   flat.value   = JSON.stringify(body.value);
+      if (body.id)      flat.id      = body.id;
       const url = SCRIPT_URL + '?' + new URLSearchParams(flat).toString();
-      const res = await fetch(url, { redirect: 'follow' });
+      const res = await fetch(url, { redirect:'follow' });
       const text = await res.text();
       return JSON.parse(text);
     }
@@ -451,30 +435,21 @@
       document.getElementById('user-pill').textContent = currentUser.name + ' · sign out';
       try {
         await apiPost('initHabits', {});
-        habits = await apiGet('getHabits');
-        // Reorder habits: Mood, Sleep, Exercise, Language, Finance, Tech
-        const ORDER = ['mood','sleep','exercise','language','finance','tech'];
-        habits.sort((a,b) => {
-          const ai = ORDER.indexOf(a.id);
-          const bi = ORDER.indexOf(b.id);
-          if (ai === -1 && bi === -1) return a.order - b.order;
+        const raw = await apiGet('getHabits');
+
+        /* Sort habits: Mood → Sleep → Exercise → Language → Finance → Tech */
+        habits = raw.sort((a,b) => {
+          const ai = HABIT_ORDER.indexOf(a.id);
+          const bi = HABIT_ORDER.indexOf(b.id);
+          if (ai === -1 && bi === -1) return 0;
           if (ai === -1) return 1;
           if (bi === -1) return -1;
           return ai - bi;
         });
 
-        /*
-          KEY CHANGE in Step 4:
-          We now load ALL entries (full history)
-          instead of just today's entries.
-          This makes the contribution grid meaningful!
-        */
-        allEntries = await apiGet('getAllEntries');
-
-        // Filter today's entries from all entries
-        const today = getTodayString();
+        allEntries   = await apiGet('getAllEntries');
+        const today  = getTodayString();
         todayEntries = allEntries.filter(e => e.date === today);
-
         document.getElementById('tb-sub').textContent = formatDateNice(today);
         buildTodayScreen();
         document.getElementById('loading-screen').style.display = 'none';
@@ -487,145 +462,41 @@
       }
     }
 
-    /* ── BUILD GRID ── */
-    /*
-      Now uses allEntries (full history) instead of just todayEntries.
-
-      Each cell checks:
-      1. Is this day logged? → accent color
-      2. Is this day skipped? → gray #E5E5E5
-      3. Is this today? → add outline
-      4. Otherwise → light color (not recorded)
-    */
-    function buildGrid(habitId, color, light) {
-      /*
-        Show current month grid only.
-        Each cell = one day of the current month.
-        Days are arranged in rows of 7 (like a calendar week).
-      */
-      const today    = new Date();
-      const todayStr = getTodayString();
-      const year     = today.getFullYear();
-      const month    = today.getMonth();
-
-      // How many days in this month?
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-      // What day of week does month start on? (0=Sun, 6=Sat)
-      const startDay = new Date(year, month, 1).getDay();
-
-      const wrap = document.createElement('div');
-      wrap.className = 'grid-wrap';
-
-      // Build rows of 7 cells (like a calendar)
-      // Total cells = startDay offset + daysInMonth, rounded up to full weeks
-      const totalCells = Math.ceil((startDay + daysInMonth) / 7) * 7;
-      const COLS = 7;
-      const ROWS = totalCells / COLS;
-
-      for (let r = 0; r < ROWS; r++) {
-        const row = document.createElement('div');
-        row.className = 'grid-row';
-        for (let c = 0; c < COLS; c++) {
-          const cellIndex = r * COLS + c;
-          const dayNum    = cellIndex - startDay + 1; // 1-based day of month
-
-          const cell = document.createElement('div');
-          cell.className = 'grid-cell';
-
-          if (dayNum < 1 || dayNum > daysInMonth) {
-            // Outside this month — empty transparent cell
-            cell.style.background = 'transparent';
-            row.appendChild(cell);
-            continue;
-          }
-
-          // Build date string for this cell
-          const dateStr = year + '-' +
-            String(month + 1).padStart(2,'0') + '-' +
-            String(dayNum).padStart(2,'0');
-          const isToday = dateStr === todayStr;
-          const isFuture = dayNum > today.getDate();
-
-          // Find entry for this habit on this date
-          const entry = allEntries.find(
-            e => e.habitId === habitId && e.date === dateStr
-          );
-
-          if (isFuture && !isToday) {
-            // Future days — very light, almost invisible
-            cell.style.background = light;
-            cell.style.opacity = '0.3';
-          } else if (entry) {
-            if (entry.value && entry.value.skipped) {
-              cell.style.background = '#E5E5E5';
-              cell.title = dateStr + ' · rest day';
-            } else {
-              cell.style.background = color;
-              cell.title = dateStr + ' · logged ✓';
-            }
-          } else {
-            cell.style.background = light;
-            cell.title = dateStr + (isToday ? ' · today' : ' · not recorded');
-          }
-
-          // Today gets a colored outline
-          if (isToday) {
-            cell.style.outline       = '2px solid ' + color;
-            cell.style.outlineOffset = '1px';
-          }
-
-          row.appendChild(cell);
-        }
-        wrap.appendChild(row);
-      }
-      return wrap;
-    }
-
-    /* ── CALCULATE STREAK ── */
-    /*
-      Counts consecutive days logged going backwards from today.
-      Skipped days BREAK the streak (you didn't do the habit).
-      Days with no entry (before you started) don't break it.
-    */
+    /* ── STREAK ── */
     function calcStreak(habitId) {
       const today = new Date();
       let streak  = 0;
-      for (let i = 0; i < 365; i++) {
+      for (let i=0; i<365; i++) {
         const d = new Date(today);
-        d.setDate(today.getDate() - i);
+        d.setDate(today.getDate()-i);
         const dateStr = d.toISOString().split('T')[0];
-        const entry   = allEntries.find(
-          e => e.habitId === habitId && e.date === dateStr
-        );
+        const entry   = allEntries.find(e=>e.habitId===habitId && e.date===dateStr);
         if (!entry) {
-          // No entry for this day
-          if (i === 0) continue; // today not logged yet — don't break streak
-          break; // gap in past — streak ends
+          if (i===0) continue;
+          break;
         }
-        if (entry.value && entry.value.skipped) break; // skipped — streak ends
-        streak++; // logged — count it
+        if (entry.value && entry.value.skipped) break;
+        streak++;
       }
       return streak;
     }
 
-    /* ── BUILD TODAY SCREEN ── */
+    /* ════════════════════════════════════════
+       BUILD TODAY SCREEN
+       6 cards, 2 per row, NO GRID
+    ════════════════════════════════════════ */
     function buildTodayScreen() {
       const container = document.getElementById('today-cards');
       container.innerHTML = '';
 
       if (!habits.length) {
-        container.innerHTML = `<div style="text-align:center;padding:48px 20px;color:var(--muted)">
+        container.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:48px 0;color:var(--muted)">
           <div style="font-size:40px;margin-bottom:12px">✨</div>
           <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:6px">No habits yet</div>
-          Go to Settings to add your first habit.
+          Go to Settings to add habits.
         </div>`;
         return;
       }
-
-      // Create the 2-column grid wrapper
-      const grid = document.createElement('div');
-      grid.className = 'habits-grid';
 
       habits.forEach(function(habit, idx) {
         const entry    = todayEntries.find(e => e.habitId === habit.id);
@@ -633,63 +504,62 @@
         const isSkip   = entry && entry.value?.skipped;
         const streak   = calcStreak(habit.id);
 
-        // Build card
+        /* Card */
         const card = document.createElement('div');
         card.className = 'habit-card';
         card.onclick   = () => goLog(idx);
 
-        /* TOP — colored background + icon + checkmark */
-        const topDiv = document.createElement('div');
-        topDiv.className = 'card-top';
-        topDiv.style.background = habit.light; // habit's light color as bg
+        /* Top colored area */
+        const colorArea = document.createElement('div');
+        colorArea.className = 'card-color-area';
+        colorArea.style.background = habit.light;
 
-        // Checkmark badge (top right)
-        const checkEl = document.createElement('div');
+        /* Badge */
+        const badge = document.createElement('div');
         if (isLogged) {
-          checkEl.className   = 'card-check logged';
-          checkEl.textContent = '✓';
+          badge.className   = 'card-badge done';
+          badge.textContent = '✓';
         } else if (isSkip) {
-          checkEl.className   = 'card-check skipped';
-          checkEl.textContent = '—';
+          badge.className   = 'card-badge skip';
+          badge.textContent = '—';
         } else {
-          checkEl.className = 'card-check';
+          badge.className = 'card-badge';
+          badge.textContent = '';
         }
 
-        // Icon
+        /* Icon */
         const iconDiv = document.createElement('div');
         iconDiv.className = 'card-icon';
         iconDiv.innerHTML = ICONS[habit.id] || ICONS['mood'];
 
-        topDiv.appendChild(checkEl);
-        topDiv.appendChild(iconDiv);
+        colorArea.appendChild(badge);
+        colorArea.appendChild(iconDiv);
 
-        /* BOTTOM — name + streak */
+        /* Bottom info */
         const infoDiv = document.createElement('div');
         infoDiv.className = 'card-info';
 
-        let streakText = 'Tap to log';
-        if (isLogged && streak > 0) streakText = '🔥 ' + streak + ' days';
-        else if (isLogged)          streakText = '✓ Done today';
-        else if (isSkip)            streakText = '— Rest day';
-        else if (streak > 0)        streakText = '🔥 ' + streak + ' days';
+        let statusText = 'Tap to log';
+        if (isLogged && streak > 0) statusText = '🔥 ' + streak + ' days';
+        else if (isLogged)          statusText = '✓ Done today';
+        else if (isSkip)            statusText = '— Rest day';
+        else if (streak > 0)        statusText = '🔥 ' + streak + ' days';
 
         infoDiv.innerHTML = `
           <div class="card-name">${habit.name}</div>
-          <div class="card-streak">${streakText}</div>`;
+          <div class="card-status">${statusText}</div>`;
 
-        card.appendChild(topDiv);
+        card.appendChild(colorArea);
         card.appendChild(infoDiv);
-        grid.appendChild(card);
+        container.appendChild(card);
       });
-
-      container.appendChild(grid);
     }
 
     /* ── LOG SCREEN ── */
     function goLog(idx) {
       curHabitIdx = idx;
       const logBtn = document.querySelectorAll('.nav-btn')[1];
-      navigate('log', 'Log entry', logBtn);
+      navigate('log','Log entry',logBtn);
       renderLogScreen();
     }
 
@@ -697,9 +567,7 @@
       const habit  = habits[curHabitIdx];
       const screen = document.getElementById('screen-log');
       screen.innerHTML = '';
-
-      // Today's existing entry for this habit
-      const existing = todayEntries.find(e => e.habitId === habit.id);
+      const existing = todayEntries.find(e=>e.habitId===habit.id);
       const isLogged = existing && !existing.value?.skipped;
       const isSkip   = existing && existing.value?.skipped;
 
@@ -733,19 +601,9 @@
       const header = document.createElement('div');
       header.className = 'log-header';
       header.style.background = habit.light;
-
-      // Status badge — shows if already logged today
       let badgeHTML = '';
-      if (isLogged) {
-        badgeHTML = `<div class="log-status-badge" style="background:${habit.color}20;color:${habit.color}">
-          ✓ Already logged today — tap Save to update
-        </div>`;
-      } else if (isSkip) {
-        badgeHTML = `<div class="log-status-badge" style="background:#f0f0f0;color:#888">
-          — Rest day recorded — tap to change
-        </div>`;
-      }
-
+      if (isLogged) badgeHTML = `<div class="log-status-badge" style="background:${habit.color}20;color:${habit.color}">✓ Already logged — tap Save to update</div>`;
+      else if (isSkip) badgeHTML = `<div class="log-status-badge" style="background:#f0f0f0;color:#888">— Rest day recorded — tap to change</div>`;
       header.innerHTML = `
         <div class="log-header-icon">${ICONS[habit.id]}</div>
         <div class="log-header-name" style="color:${habit.color}">${habit.name}</div>
@@ -759,32 +617,40 @@
       else if (habit.type==='mood')     formWrap.innerHTML = buildMoodForm(habit);
       else                              formWrap.innerHTML = buildStudyForm(habit);
 
-      /* SAVE AREA
-         Sleep and Mood: only "Save" button (no rest day option)
-         Exercise, Finance, Language, Tech: two buttons
-      */
-      const hasRestDay = ['exercise','study'].includes(habit.type);
+      /* ════════════════════════════════
+         SAVE AREA
+         Sleep  → one button "Save sleep"
+         Mood   → one button "Save mood"
+         Others → two buttons "I did it!" + "Rest day"
+      ════════════════════════════════ */
       const saveArea = document.createElement('div');
       saveArea.className = 'save-area';
-      saveArea.innerHTML = `
-        <div class="save-area-label">How did it go today?</div>
-        <div class="save-btns">
-          <button class="save-btn primary" id="btn-did-it"
-            style="background:${habit.color}">
-            ✓ ${habit.type === 'sleep' ? 'Save sleep' : habit.type === 'mood' ? 'Save mood' : 'I did it!'}
-          </button>
-          ${hasRestDay ? `<button class="save-btn secondary" id="btn-rest">— Rest day</button>` : ''}
-        </div>`;
+
+      const showRestDay = (habit.type !== 'sleep' && habit.type !== 'mood');
+
+      if (showRestDay) {
+        saveArea.innerHTML = `
+          <div class="save-area-label">How did it go today?</div>
+          <div class="save-btns">
+            <button class="save-btn primary" id="btn-did-it" style="background:${habit.color}">✓ I did it!</button>
+            <button class="save-btn secondary" id="btn-rest">— Rest day</button>
+          </div>`;
+      } else {
+        saveArea.innerHTML = `
+          <div class="save-btns">
+            <button class="save-btn primary" id="btn-did-it" style="background:${habit.color}">
+              ${habit.type==='sleep' ? '💤 Save sleep' : '😊 Save mood'}
+            </button>
+          </div>`;
+      }
 
       const successMsg = document.createElement('div');
       successMsg.className = 'save-success';
       successMsg.id = 'save-success';
-
       const skipMsg = document.createElement('div');
       skipMsg.className = 'save-skip';
       skipMsg.id = 'save-skip';
 
-      /* ASSEMBLE */
       screen.appendChild(navRow);
       screen.appendChild(header);
       screen.appendChild(formWrap);
@@ -792,12 +658,11 @@
       screen.appendChild(successMsg);
       screen.appendChild(skipMsg);
 
-      // Wire up buttons
+      /* Wire buttons */
       document.getElementById('btn-did-it').onclick = () => saveEntry(habit, false);
       const restBtn = document.getElementById('btn-rest');
       if (restBtn) restBtn.onclick = () => saveEntry(habit, true);
 
-      // Wire form logic
       if (habit.type==='sleep') wireSleepCalc(habit);
       if (habit.type==='mood')  selectMood(3);
     }
@@ -825,8 +690,7 @@
           <select class="form-input" id="inp-activity">
             <option>Gym workout</option><option>Running</option>
             <option>Walking</option><option>Cycling</option>
-            <option>Yoga / stretching</option><option>Swimming</option>
-            <option>Other</option>
+            <option>Yoga / stretching</option><option>Swimming</option><option>Other</option>
           </select>
         </div>
         <div class="form-group">
@@ -856,9 +720,12 @@
     }
     function buildStudyForm(h) {
       const cfg = {
-        finance:  { tl:'Topic / subject', tp:'e.g. investing, budgeting, stocks',    rl:'Resource type',  res:['Book','Podcast','YouTube','Course','News / article','Other'] },
-        language: { tl:'Language',         tp:'e.g. Japanese, English, Thai',          rl:'Activity type',  res:['Anki / flashcards','Reading','Listening','Speaking practice','Writing','Grammar'] },
-        tech:     { tl:'Topic / skill',    tp:'e.g. HTML, JavaScript, Python, AI',    rl:'Resource',       res:['YouTube','Online course','Book','Documentation','Project practice','Other'] }
+        finance:  { tl:'Topic / subject', tp:'e.g. investing, budgeting, stocks', rl:'Resource type',
+                    res:['Book','Podcast','YouTube','Course','News / article','Other'] },
+        language: { tl:'Language', tp:'e.g. Japanese, English, Thai', rl:'Activity type',
+                    res:['Anki / flashcards','Reading','Listening','Speaking practice','Writing','Grammar'] },
+        tech:     { tl:'Topic / skill', tp:'e.g. HTML, JavaScript, Python, AI', rl:'Resource',
+                    res:['YouTube','Online course','Book','Documentation','Project practice','Other'] }
       }[h.id] || { tl:'Topic', tp:'', rl:'Resource', res:['Other'] };
       return `
         <div class="form-group">
@@ -880,14 +747,14 @@
     /* ── FORM WIRING ── */
     function wireSleepCalc(habit) {
       function calc() {
-        const bed  = document.getElementById('inp-bedtime')?.value;
-        const wake = document.getElementById('inp-wakeup')?.value;
-        if (!bed||!wake) return;
-        const [bh,bm]=bed.split(':').map(Number);
-        const [wh,wm]=wake.split(':').map(Number);
+        const bed=document.getElementById('inp-bedtime')?.value;
+        const wake=document.getElementById('inp-wakeup')?.value;
+        if(!bed||!wake) return;
+        const[bh,bm]=bed.split(':').map(Number);
+        const[wh,wm]=wake.split(':').map(Number);
         let mins=(wh*60+wm)-(bh*60+bm);
         if(mins<0) mins+=1440;
-        const h=Math.floor(mins/60), m=mins%60;
+        const h=Math.floor(mins/60),m=mins%60;
         const el=document.getElementById('dur-val');
         if(el) el.textContent=h+'h '+(m>0?m+'m':'');
       }
@@ -895,119 +762,71 @@
       document.getElementById('inp-wakeup')?.addEventListener('change',calc);
       calc();
     }
-
     function selectMood(score) {
       selectedMood = score;
       const habit  = habits[curHabitIdx];
-      for (let i=1; i<=5; i++) {
-        const btn = document.getElementById('mood-'+i);
-        if (!btn) continue;
-        if (i===score) {
-          btn.style.borderColor = habit.color;
-          btn.style.background  = habit.light;
-          btn.style.transform   = 'scale(1.12)';
-        } else {
-          btn.style.borderColor = '';
-          btn.style.background  = '';
-          btn.style.transform   = '';
-        }
+      for(let i=1;i<=5;i++){
+        const btn=document.getElementById('mood-'+i);
+        if(!btn) continue;
+        if(i===score){ btn.style.borderColor=habit.color; btn.style.background=habit.light; btn.style.transform='scale(1.12)'; }
+        else{ btn.style.borderColor=''; btn.style.background=''; btn.style.transform=''; }
       }
     }
 
     /* ── SAVE ENTRY ── */
-    /*
-      saveEntry(habit, isSkip)
-      ─────────────────────────
-      isSkip = false → "I did it!" → saves form data
-      isSkip = true  → "Rest day"  → saves {skipped:true}
-    */
     async function saveEntry(habit, isSkip) {
       const didBtn  = document.getElementById('btn-did-it');
       const restBtn = document.getElementById('btn-rest');
       const succEl  = document.getElementById('save-success');
       const skipEl  = document.getElementById('save-skip');
-
-      // Disable both buttons while saving
       didBtn.disabled = true;
-      restBtn.disabled = true;
-      didBtn.textContent  = isSkip ? '✓ I did it!' : 'Saving...';
-      restBtn.textContent = isSkip ? 'Saving...'   : '— Rest day';
-
+      if(restBtn) restBtn.disabled = true;
+      didBtn.textContent = 'Saving...';
       try {
         let value = {};
-
         if (isSkip) {
-          // Rest day — just record skipped:true
-          value = { skipped: true };
+          value = { skipped:true };
+        } else if (habit.type==='sleep') {
+          const bed=document.getElementById('inp-bedtime').value;
+          const wake=document.getElementById('inp-wakeup').value;
+          const[bh,bm]=bed.split(':').map(Number);
+          const[wh,wm]=wake.split(':').map(Number);
+          let mins=(wh*60+wm)-(bh*60+bm); if(mins<0) mins+=1440;
+          value={ bedtime:bed, wakeup:wake, duration:parseFloat((mins/60).toFixed(2)) };
+        } else if (habit.type==='exercise') {
+          value={ activity:document.getElementById('inp-activity').value,
+                  duration:Number(document.getElementById('inp-duration').value),
+                  notes:document.getElementById('inp-notes').value };
+        } else if (habit.type==='mood') {
+          value={ score:selectedMood, note:document.getElementById('inp-mood-note').value };
         } else {
-          // Collect form data
-          if (habit.type==='sleep') {
-            const bed=document.getElementById('inp-bedtime').value;
-            const wake=document.getElementById('inp-wakeup').value;
-            const [bh,bm]=bed.split(':').map(Number);
-            const [wh,wm]=wake.split(':').map(Number);
-            let mins=(wh*60+wm)-(bh*60+bm);
-            if(mins<0) mins+=1440;
-            value={ bedtime:bed, wakeup:wake, duration:parseFloat((mins/60).toFixed(2)) };
-          } else if (habit.type==='exercise') {
-            value={ activity:document.getElementById('inp-activity').value,
-                    duration:Number(document.getElementById('inp-duration').value),
-                    notes:document.getElementById('inp-notes').value };
-          } else if (habit.type==='mood') {
-            value={ score:selectedMood, note:document.getElementById('inp-mood-note').value };
-          } else {
-            value={ topic:document.getElementById('inp-topic').value,
-                    duration:Number(document.getElementById('inp-duration').value),
-                    resource:document.getElementById('inp-resource').value };
-          }
+          value={ topic:document.getElementById('inp-topic').value,
+                  duration:Number(document.getElementById('inp-duration').value),
+                  resource:document.getElementById('inp-resource').value };
         }
 
-        // Send to Google Sheets
-        const result = await apiPost('saveEntry', {
-          habitId: habit.id,
-          date:    getTodayString(),
-          value:   value
-        });
+        const result = await apiPost('saveEntry',{ habitId:habit.id, date:getTodayString(), value });
 
         if (result.success) {
-          // Update local state
           allEntries   = allEntries.filter(e=>!(e.habitId===habit.id && e.date===getTodayString()));
           todayEntries = todayEntries.filter(e=>e.habitId!==habit.id);
           const newEntry = { id:result.id, habitId:habit.id, date:getTodayString(), value };
-          allEntries.push(newEntry);
-          todayEntries.push(newEntry);
-
-          // Show appropriate message
-          if (isSkip) {
-            skipEl.textContent  = '— Rest day recorded. See you tomorrow! 💪';
-            skipEl.style.display = 'block';
-            succEl.style.display = 'none';
-          } else {
-            succEl.textContent  = '✅ Saved! Great job today 🎉';
-            succEl.style.display = 'block';
-            skipEl.style.display = 'none';
-          }
-
-          // Restore buttons
-          didBtn.textContent  = '✓ I did it!';
-          restBtn.textContent = '— Rest day';
-          didBtn.disabled  = false;
-          restBtn.disabled = false;
-
-          // Rebuild today screen to update checkmarks + grid
+          allEntries.push(newEntry); todayEntries.push(newEntry);
+          if(isSkip){ skipEl.textContent='— Rest day recorded. See you tomorrow! 💪'; skipEl.style.display='block'; succEl.style.display='none'; }
+          else{ succEl.textContent='✅ Saved! Great job today 🎉'; succEl.style.display='block'; skipEl.style.display='none'; }
+          const label = habit.type==='sleep' ? '💤 Save sleep' : habit.type==='mood' ? '😊 Save mood' : '✓ I did it!';
+          didBtn.textContent = label;
+          didBtn.disabled = false;
+          if(restBtn){ restBtn.textContent='— Rest day'; restBtn.disabled=false; }
           buildTodayScreen();
-
-        } else {
-          throw new Error(result.error || 'Save failed');
-        }
-
+        } else { throw new Error(result.error||'Save failed'); }
       } catch(err) {
-        console.error('Save error:', err);
-        didBtn.textContent  = '✓ I did it!';
-        restBtn.textContent = '— Rest day';
-        didBtn.disabled  = false;
-        restBtn.disabled = false;
+        console.error(err);
+        const label = habit.type==='sleep' ? '💤 Save sleep' : habit.type==='mood' ? '😊 Save mood' : '✓ I did it!';
+        didBtn.textContent = label;
         didBtn.style.background = '#DC2626';
+        didBtn.disabled = false;
+        if(restBtn){ restBtn.textContent='— Rest day'; restBtn.disabled=false; }
         setTimeout(()=>{ didBtn.style.background=habit.color; }, 2000);
       }
     }
@@ -1017,19 +836,17 @@
       document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
       document.getElementById('screen-'+name).classList.add('active');
       document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-      if (btn) btn.classList.add('active');
+      if(btn) btn.classList.add('active');
       document.getElementById('tb-title').textContent = title;
       document.getElementById('content').scrollTop = 0;
-      if (name==='log' && habits.length>0) renderLogScreen();
+      if(name==='log' && habits.length>0) renderLogScreen();
     }
 
     /* ── STARTUP ── */
     window.addEventListener('load', function() {
       const saved = sessionStorage.getItem('ht_user');
-      if (saved) {
-        currentUser = JSON.parse(saved);
-        startApp();
-      } else {
+      if (saved) { currentUser=JSON.parse(saved); startApp(); }
+      else {
         document.getElementById('loading-screen').style.display = 'none';
         document.getElementById('login-screen').style.display   = 'flex';
       }
