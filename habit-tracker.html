@@ -384,14 +384,23 @@
       params.action    = action;
       params.userEmail = currentUser.email;
       const url = SCRIPT_URL + '?' + new URLSearchParams(params).toString();
-      const res = await fetch(url);
-      return await res.json();
+      const res = await fetch(url, { redirect: 'follow' });
+      const text = await res.text();
+      return JSON.parse(text);
     }
     async function apiPost(action, body={}) {
       body.action    = action;
       body.userEmail = currentUser.email;
-      const res = await fetch(SCRIPT_URL, { method:'POST', body:JSON.stringify(body) });
-      return await res.json();
+      // Send as GET with all params in URL — avoids CORS preflight issues
+      const flat = { action: body.action, userEmail: body.userEmail };
+      if (body.habitId)  flat.habitId  = body.habitId;
+      if (body.date)     flat.date      = body.date;
+      if (body.value)    flat.value     = JSON.stringify(body.value);
+      if (body.id)       flat.id        = body.id;
+      const url = SCRIPT_URL + '?' + new URLSearchParams(flat).toString();
+      const res = await fetch(url, { redirect: 'follow' });
+      const text = await res.text();
+      return JSON.parse(text);
     }
 
     /* ── LOGIN ── */
