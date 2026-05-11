@@ -93,57 +93,76 @@
     #screen-today { padding:14px; }
     .section-label {
       font-size:10px; font-weight:500; color:var(--muted);
-      letter-spacing:.08em; text-transform:uppercase; margin-bottom:10px;
+      letter-spacing:.08em; text-transform:uppercase; margin-bottom:12px;
     }
+
+    /*
+      HABIT GRID — 2 cards per row
+      display:grid with 2 equal columns
+    */
+    .habits-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    /*
+      HABIT CARD — square-ish card
+      Each card shows:
+      - colored top area with icon
+      - habit name
+      - status text
+      - checkmark
+    */
     .habit-card {
-      background:var(--white); border:1px solid var(--border);
-      border-radius:var(--radius); padding:13px 13px 11px;
-      margin-bottom:10px; cursor:pointer; transition:transform 0.1s;
+      background:var(--white);
+      border:1px solid var(--border);
+      border-radius:16px;
+      cursor:pointer;
+      transition:transform 0.1s, box-shadow 0.15s;
+      overflow:hidden;
     }
-    .habit-card:active { transform:scale(0.99); }
-    .card-top { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
-    .card-icon { width:40px; height:40px; flex-shrink:0; }
+    .habit-card:active { transform:scale(0.97); }
+
+    /* Top colored area — shows icon centered */
+    .card-top {
+      padding:18px 12px 14px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+      position:relative;
+    }
+
+    /* Icon */
+    .card-icon { width:52px; height:52px; }
     .card-icon svg { width:100%; height:100%; }
-    .card-info { flex:1; min-width:0; }
-    .card-name   { font-size:14px; font-weight:500; }
-    .card-streak { font-size:10px; color:var(--muted); margin-top:2px; }
+
+    /* Checkmark badge — top right corner */
     .card-check {
-      width:24px; height:24px; border-radius:50%;
+      position:absolute;
+      top:8px; right:8px;
+      width:22px; height:22px;
+      border-radius:50%;
       border:1.5px solid var(--border);
       display:flex; align-items:center; justify-content:center;
-      font-size:11px; color:var(--white); flex-shrink:0; transition:all 0.2s;
+      font-size:10px; color:var(--white);
+      background:var(--white);
+      transition:all 0.2s;
     }
     .card-check.logged  { background:var(--text); border-color:var(--text); }
-    .card-check.skipped { background:#E5E5E5; border-color:#E5E5E5; color:#999; font-size:14px; }
+    .card-check.skipped { background:#E5E5E5; border-color:#E5E5E5; color:#888; }
 
-    /* ── CONTRIBUTION GRID ── */
-    .grid-wrap { display:flex; flex-direction:column; gap:2px; }
-    .grid-row  { display:flex; gap:2px; }
-    .grid-cell {
-      flex:1; height:8px; border-radius:2px;
-      position:relative;
-      /*
-        Each cell = one day.
-        Color tells you what happened:
-        - light color = not recorded
-        - accent color = completed ✅
-        - #E5E5E5 = skipped / rest day ❌
-        - outlined = today
-      */
+    /* Bottom info area */
+    .card-info {
+      padding:10px 12px 12px;
+      border-top:1px solid var(--border);
     }
-
-    /* Grid legend at bottom of each card */
-    .grid-legend {
-      display:flex; align-items:center; gap:12px;
-      margin-top:6px; flex-wrap:wrap;
+    .card-name {
+      font-size:13px; font-weight:500; color:var(--text);
+      margin-bottom:3px;
     }
-    .legend-item {
-      display:flex; align-items:center; gap:4px;
-      font-size:9px; color:var(--muted);
-    }
-    .legend-dot {
-      width:8px; height:8px; border-radius:2px; flex-shrink:0;
-    }
+    .card-streak { font-size:10px; color:var(--muted); }
 
     .error-banner {
       background:#FEE2E2; border:1px solid #FCA5A5;
@@ -433,6 +452,16 @@
       try {
         await apiPost('initHabits', {});
         habits = await apiGet('getHabits');
+        // Reorder habits: Mood, Sleep, Exercise, Language, Finance, Tech
+        const ORDER = ['mood','sleep','exercise','language','finance','tech'];
+        habits.sort((a,b) => {
+          const ai = ORDER.indexOf(a.id);
+          const bi = ORDER.indexOf(b.id);
+          if (ai === -1 && bi === -1) return a.order - b.order;
+          if (ai === -1) return 1;
+          if (bi === -1) return -1;
+          return ai - bi;
+        });
 
         /*
           KEY CHANGE in Step 4:
@@ -469,46 +498,78 @@
       4. Otherwise → light color (not recorded)
     */
     function buildGrid(habitId, color, light) {
-      const ROWS=4, COLS=22, today=new Date();
+      /*
+        Show current month grid only.
+        Each cell = one day of the current month.
+        Days are arranged in rows of 7 (like a calendar week).
+      */
+      const today    = new Date();
       const todayStr = getTodayString();
+      const year     = today.getFullYear();
+      const month    = today.getMonth();
+
+      // How many days in this month?
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      // What day of week does month start on? (0=Sun, 6=Sat)
+      const startDay = new Date(year, month, 1).getDay();
+
       const wrap = document.createElement('div');
       wrap.className = 'grid-wrap';
 
-      for (let r=0; r<ROWS; r++) {
+      // Build rows of 7 cells (like a calendar)
+      // Total cells = startDay offset + daysInMonth, rounded up to full weeks
+      const totalCells = Math.ceil((startDay + daysInMonth) / 7) * 7;
+      const COLS = 7;
+      const ROWS = totalCells / COLS;
+
+      for (let r = 0; r < ROWS; r++) {
         const row = document.createElement('div');
         row.className = 'grid-row';
-        for (let c=0; c<COLS; c++) {
-          const daysAgo  = (ROWS*COLS-1)-(r*COLS+c);
-          const cellDate = new Date(today);
-          cellDate.setDate(today.getDate()-daysAgo);
-          const dateStr  = cellDate.toISOString().split('T')[0];
-          const isToday  = dateStr === todayStr;
+        for (let c = 0; c < COLS; c++) {
+          const cellIndex = r * COLS + c;
+          const dayNum    = cellIndex - startDay + 1; // 1-based day of month
+
+          const cell = document.createElement('div');
+          cell.className = 'grid-cell';
+
+          if (dayNum < 1 || dayNum > daysInMonth) {
+            // Outside this month — empty transparent cell
+            cell.style.background = 'transparent';
+            row.appendChild(cell);
+            continue;
+          }
+
+          // Build date string for this cell
+          const dateStr = year + '-' +
+            String(month + 1).padStart(2,'0') + '-' +
+            String(dayNum).padStart(2,'0');
+          const isToday = dateStr === todayStr;
+          const isFuture = dayNum > today.getDate();
 
           // Find entry for this habit on this date
           const entry = allEntries.find(
             e => e.habitId === habitId && e.date === dateStr
           );
 
-          const cell = document.createElement('div');
-          cell.className = 'grid-cell';
-
-          if (entry) {
+          if (isFuture && !isToday) {
+            // Future days — very light, almost invisible
+            cell.style.background = light;
+            cell.style.opacity = '0.3';
+          } else if (entry) {
             if (entry.value && entry.value.skipped) {
-              // Skipped day → gray
               cell.style.background = '#E5E5E5';
               cell.title = dateStr + ' · rest day';
             } else {
-              // Logged day → accent color
               cell.style.background = color;
               cell.title = dateStr + ' · logged ✓';
             }
           } else {
-            // Not recorded → light color
             cell.style.background = light;
             cell.title = dateStr + (isToday ? ' · today' : ' · not recorded');
           }
 
-          // Today gets an outline regardless
+          // Today gets a colored outline
           if (isToday) {
             cell.style.outline       = '2px solid ' + color;
             cell.style.outlineOffset = '1px';
@@ -552,46 +613,37 @@
     function buildTodayScreen() {
       const container = document.getElementById('today-cards');
       container.innerHTML = '';
+
       if (!habits.length) {
         container.innerHTML = `<div style="text-align:center;padding:48px 20px;color:var(--muted)">
           <div style="font-size:40px;margin-bottom:12px">✨</div>
           <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:6px">No habits yet</div>
-          Go to Settings to add habits.
+          Go to Settings to add your first habit.
         </div>`;
         return;
       }
 
-      const today = getTodayString();
+      // Create the 2-column grid wrapper
+      const grid = document.createElement('div');
+      grid.className = 'habits-grid';
+
       habits.forEach(function(habit, idx) {
-        const entry    = todayEntries.find(e=>e.habitId===habit.id);
+        const entry    = todayEntries.find(e => e.habitId === habit.id);
         const isLogged = entry && !entry.value?.skipped;
         const isSkip   = entry && entry.value?.skipped;
         const streak   = calcStreak(habit.id);
 
+        // Build card
         const card = document.createElement('div');
         card.className = 'habit-card';
         card.onclick   = () => goLog(idx);
 
-        const topRow = document.createElement('div');
-        topRow.className = 'card-top';
+        /* TOP — colored background + icon + checkmark */
+        const topDiv = document.createElement('div');
+        topDiv.className = 'card-top';
+        topDiv.style.background = habit.light; // habit's light color as bg
 
-        const iconDiv = document.createElement('div');
-        iconDiv.className = 'card-icon';
-        iconDiv.innerHTML = ICONS[habit.id] || ICONS['mood'];
-
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'card-info';
-
-        // Streak text
-        let streakText = 'Tap to log';
-        if (streak > 0) streakText = '🔥 ' + streak + ' day streak';
-        if (isLogged)   streakText = '🔥 ' + streak + ' day streak · done!';
-        if (isSkip)     streakText = '— Rest day recorded';
-
-        infoDiv.innerHTML = `
-          <div class="card-name">${habit.name}</div>
-          <div class="card-streak">${streakText}</div>`;
-
+        // Checkmark badge (top right)
         const checkEl = document.createElement('div');
         if (isLogged) {
           checkEl.className   = 'card-check logged';
@@ -600,38 +652,37 @@
           checkEl.className   = 'card-check skipped';
           checkEl.textContent = '—';
         } else {
-          checkEl.className   = 'card-check';
-          checkEl.textContent = '';
+          checkEl.className = 'card-check';
         }
 
-        topRow.appendChild(iconDiv);
-        topRow.appendChild(infoDiv);
-        topRow.appendChild(checkEl);
-        card.appendChild(topRow);
-        card.appendChild(buildGrid(habit.id, habit.color, habit.light));
+        // Icon
+        const iconDiv = document.createElement('div');
+        iconDiv.className = 'card-icon';
+        iconDiv.innerHTML = ICONS[habit.id] || ICONS['mood'];
 
-        // Grid legend — shown once on first card
-        if (idx === 0) {
-          const legend = document.createElement('div');
-          legend.className = 'grid-legend';
-          legend.innerHTML = `
-            <div class="legend-item">
-              <div class="legend-dot" style="background:${habit.color}"></div>
-              <span>Logged</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-dot" style="background:#E5E5E5"></div>
-              <span>Rest day</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-dot" style="background:${habit.light};border:1px solid #ddd"></div>
-              <span>Not recorded</span>
-            </div>`;
-          card.appendChild(legend);
-        }
+        topDiv.appendChild(checkEl);
+        topDiv.appendChild(iconDiv);
 
-        container.appendChild(card);
+        /* BOTTOM — name + streak */
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'card-info';
+
+        let streakText = 'Tap to log';
+        if (isLogged && streak > 0) streakText = '🔥 ' + streak + ' days';
+        else if (isLogged)          streakText = '✓ Done today';
+        else if (isSkip)            streakText = '— Rest day';
+        else if (streak > 0)        streakText = '🔥 ' + streak + ' days';
+
+        infoDiv.innerHTML = `
+          <div class="card-name">${habit.name}</div>
+          <div class="card-streak">${streakText}</div>`;
+
+        card.appendChild(topDiv);
+        card.appendChild(infoDiv);
+        grid.appendChild(card);
       });
+
+      container.appendChild(grid);
     }
 
     /* ── LOG SCREEN ── */
@@ -708,7 +759,11 @@
       else if (habit.type==='mood')     formWrap.innerHTML = buildMoodForm(habit);
       else                              formWrap.innerHTML = buildStudyForm(habit);
 
-      /* SAVE AREA — two buttons */
+      /* SAVE AREA
+         Sleep and Mood: only "Save" button (no rest day option)
+         Exercise, Finance, Language, Tech: two buttons
+      */
+      const hasRestDay = ['exercise','study'].includes(habit.type);
       const saveArea = document.createElement('div');
       saveArea.className = 'save-area';
       saveArea.innerHTML = `
@@ -716,11 +771,9 @@
         <div class="save-btns">
           <button class="save-btn primary" id="btn-did-it"
             style="background:${habit.color}">
-            ✓ I did it!
+            ✓ ${habit.type === 'sleep' ? 'Save sleep' : habit.type === 'mood' ? 'Save mood' : 'I did it!'}
           </button>
-          <button class="save-btn secondary" id="btn-rest">
-            — Rest day
-          </button>
+          ${hasRestDay ? `<button class="save-btn secondary" id="btn-rest">— Rest day</button>` : ''}
         </div>`;
 
       const successMsg = document.createElement('div');
@@ -741,7 +794,8 @@
 
       // Wire up buttons
       document.getElementById('btn-did-it').onclick = () => saveEntry(habit, false);
-      document.getElementById('btn-rest').onclick    = () => saveEntry(habit, true);
+      const restBtn = document.getElementById('btn-rest');
+      if (restBtn) restBtn.onclick = () => saveEntry(habit, true);
 
       // Wire form logic
       if (habit.type==='sleep') wireSleepCalc(habit);
