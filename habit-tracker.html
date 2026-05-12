@@ -624,25 +624,40 @@
     async function apiGet(action, params={}) {
       params.action    = action;
       params.userEmail = currentUser.email;
+      params._t        = Date.now(); // cache buster
       const url = SCRIPT_URL + '?' + new URLSearchParams(params).toString();
-      const res = await fetch(url, { redirect:'follow' });
+      const res = await fetch(url, { 
+        redirect: 'follow',
+        cache: 'no-store'
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
       const text = await res.text();
+      if (!text) throw new Error('Empty response');
       return JSON.parse(text);
     }
     async function apiPost(action, body={}) {
       // Build flat params — include ALL fields from body
-      const flat = { action: action, userEmail: currentUser.email };
+      const flat = { 
+        action:    action, 
+        userEmail: currentUser.email,
+        _t:        Date.now() // cache buster
+      };
       // Copy all fields from body into flat
       Object.keys(body).forEach(function(key) {
         if (key === 'value') {
           flat.value = JSON.stringify(body.value);
-        } else {
+        } else if (key !== 'action' && key !== 'userEmail') {
           flat[key] = body[key];
         }
       });
       const url = SCRIPT_URL + '?' + new URLSearchParams(flat).toString();
-      const res = await fetch(url, { redirect:'follow' });
+      const res = await fetch(url, { 
+        redirect: 'follow',
+        cache: 'no-store'
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
       const text = await res.text();
+      if (!text) throw new Error('Empty response');
       return JSON.parse(text);
     }
 
@@ -1951,11 +1966,34 @@
 
     /* ── STARTUP ── */
     window.addEventListener('load', function() {
+      // Always show login screen first — safest approach
+      // This prevents getting stuck on loading screen
+      document.getElementById('loading-screen').style.display = 'none';
+      
       const saved = sessionStorage.getItem('ht_user');
-      if (saved) { currentUser=JSON.parse(saved); startApp(); }
-      else {
-        document.getElementById('loading-screen').style.display = 'none';
-        document.getElementById('login-screen').style.display   = 'flex';
+      if (saved) {
+        try {
+          currentUser = JSON.parse(saved);
+          // Show app directly, start loading in background
+          document.getElementById('login-screen').style.display = 'none';
+          document.getElementById('top-bar').style.display = 'block';
+          document.getElementById('content').style.display = 'flex';
+          document.getElementById('bottom-nav').style.display = 'flex';
+          document.getElementById('user-pill').textContent = currentUser.name + ' · sign out';
+          // Show today screen with loading indicator
+          document.getElementById('today-cards').innerHTML = 
+            '<div style="text-align:center;padding:40px;color:var(--muted)">'+
+            '<div style="font-size:32px;margin-bottom:12px">⏳</div>'+
+            '<div style="font-size:14px">Loading your habits...</div>'+
+            '<div style="font-size:11px;margin-top:8px;color:#bbb">If this takes too long, try signing out and back in</div>'+
+            '</div>';
+          startApp();
+        } catch(e) {
+          sessionStorage.removeItem('ht_user');
+          document.getElementById('login-screen').style.display = 'flex';
+        }
+      } else {
+        document.getElementById('login-screen').style.display = 'flex';
       }
     });
   </script>
