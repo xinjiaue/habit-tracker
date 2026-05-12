@@ -674,16 +674,20 @@
       document.getElementById('loading-screen').style.display = 'flex';
       document.getElementById('user-pill').textContent = currentUser.name + ' · sign out';
 
-      // Timeout — if loading takes more than 10 seconds, show error
+      // Timeout — if loading takes more than 15 seconds, show error
       const timeout = setTimeout(function() {
         document.getElementById('loading-screen').style.display = 'none';
         const b = document.getElementById('error-banner');
         b.style.display = 'block';
-        b.textContent   = '⚠️ Connection timed out. Please check internet and refresh.';
-      }, 10000);
+        b.textContent   = '⚠️ Connection timed out. Check internet and refresh page.';
+      }, 15000);
 
       try {
+        // Step 1: init habits
+        document.querySelector('.loading-text').textContent = 'Connecting...';
         await apiPost('initHabits', {});
+        // Step 2: load habits
+        document.querySelector('.loading-text').textContent = 'Loading habits...';
         const raw = await apiGet('getHabits');
 
         /* Sort habits: Mood → Sleep → Exercise → Language → Finance → Tech */
