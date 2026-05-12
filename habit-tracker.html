@@ -390,6 +390,106 @@
     .legend-dot {
       width:8px; height:8px; border-radius:2px; flex-shrink:0;
     }
+
+    /* ════════════════════════════════
+       SETTINGS SCREEN
+    ════════════════════════════════ */
+    .settings-habit-row {
+      background:var(--white); border:1px solid var(--border);
+      border-radius:12px; padding:12px 14px; margin-bottom:8px;
+      display:flex; align-items:center; gap:10px; cursor:pointer;
+      transition:background 0.15s;
+    }
+    .settings-habit-row:active { background:var(--surface); }
+    .shr-icon { width:36px; height:36px; flex-shrink:0; }
+    .shr-icon svg { width:100%; height:100%; }
+    .shr-info { flex:1; min-width:0; }
+    .shr-name { font-size:13px; font-weight:500; color:var(--text); }
+    .shr-sub  { font-size:10px; color:var(--muted); margin-top:2px; }
+    .shr-dot  { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .shr-arrow { font-size:18px; color:var(--muted); margin-left:4px; flex-shrink:0; }
+
+    .settings-add-btn {
+      width:100%; background:var(--surface);
+      border:1.5px dashed #ccc; border-radius:12px;
+      padding:13px; font-size:13px; color:var(--muted);
+      text-align:center; cursor:pointer; font-family:var(--font);
+      margin-bottom:14px; transition:border-color 0.15s;
+    }
+    .settings-add-btn:hover { border-color:var(--text); color:var(--text); }
+
+    /* Edit habit overlay */
+    #edit-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.4);
+      z-index:900; display:none; align-items:flex-end;
+    }
+    #edit-overlay.open { display:flex; }
+    #edit-sheet {
+      background:var(--white); border-radius:20px 20px 0 0;
+      padding:20px 20px 32px; width:100%;
+      max-height:90dvh; overflow-y:auto;
+      animation:slideUp 0.25s ease;
+    }
+    @keyframes slideUp {
+      from { transform:translateY(100%); }
+      to   { transform:translateY(0); }
+    }
+    .edit-sheet-handle {
+      width:36px; height:4px; background:var(--border);
+      border-radius:2px; margin:0 auto 16px;
+    }
+    .edit-sheet-title {
+      font-size:16px; font-weight:500; color:var(--text);
+      margin-bottom:16px; text-align:center;
+    }
+    .edit-field-label {
+      font-size:10px; font-weight:500; color:var(--muted);
+      text-transform:uppercase; letter-spacing:.06em;
+      display:block; margin-bottom:5px;
+    }
+    .edit-field-input {
+      width:100%; background:var(--surface);
+      border:1.5px solid var(--border); border-radius:10px;
+      padding:11px 14px; font-size:15px;
+      font-family:var(--font); color:var(--text);
+      outline:none; margin-bottom:12px;
+      transition:border-color 0.15s;
+    }
+    .edit-field-input:focus { border-color:var(--text); }
+
+    /* Color picker */
+    .color-picker {
+      display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;
+    }
+    .color-swatch {
+      width:32px; height:32px; border-radius:50%;
+      cursor:pointer; transition:transform 0.15s;
+      border:3px solid transparent;
+    }
+    .color-swatch:active { transform:scale(0.9); }
+    .color-swatch.selected {
+      border-color:var(--text);
+      transform:scale(1.1);
+    }
+
+    /* Edit action buttons */
+    .edit-save-btn {
+      width:100%; background:var(--text); color:var(--white);
+      border:none; border-radius:12px; padding:14px;
+      font-size:14px; font-weight:500; font-family:var(--font);
+      cursor:pointer; margin-bottom:10px;
+    }
+    .edit-delete-btn {
+      width:100%; background:none; color:#EF4444;
+      border:1.5px solid #FCA5A5; border-radius:12px;
+      padding:12px; font-size:13px; font-family:var(--font);
+      cursor:pointer;
+    }
+    .edit-cancel-btn {
+      width:100%; background:none; color:var(--muted);
+      border:none; padding:10px; font-size:13px;
+      font-family:var(--font); cursor:pointer; margin-top:4px;
+    }
   </style>
 </head>
 <body>
@@ -442,11 +542,7 @@
 
     <!-- SETTINGS -->
     <div class="screen" id="screen-settings">
-      <div class="placeholder-screen">
-        <div class="ph-icon">⚙️</div>
-        <div class="ph-title">Settings Screen</div>
-        Coming in Step 6
-      </div>
+      <div id="settings-content" style="padding:14px"></div>
     </div>
 
   </div>
@@ -465,6 +561,28 @@
       <span class="ni">⚙️</span><span>Settings</span>
     </button>
   </nav>
+
+  <!-- EDIT HABIT OVERLAY — slides up from bottom -->
+  <div id="edit-overlay" onclick="closeEditSheet(event)">
+    <div id="edit-sheet">
+      <div class="edit-sheet-handle"></div>
+      <div class="edit-sheet-title" id="edit-title">Edit Habit</div>
+
+      <label class="edit-field-label">Habit name</label>
+      <input class="edit-field-input" type="text" id="edit-name" placeholder="e.g. Reading, Walking...">
+
+      <label class="edit-field-label">Emoji icon</label>
+      <input class="edit-field-input" type="text" id="edit-emoji" placeholder="e.g. 📚 🏃 🎯"
+        maxlength="2" style="font-size:24px;text-align:center">
+
+      <label class="edit-field-label">Color</label>
+      <div class="color-picker" id="color-picker"></div>
+
+      <button class="edit-save-btn" id="edit-save-btn" onclick="saveHabitEdit()">Save changes</button>
+      <button class="edit-delete-btn" id="edit-delete-btn" onclick="deleteHabitEdit()">🗑 Delete this habit</button>
+      <button class="edit-cancel-btn" onclick="closeEditSheet()">Cancel</button>
+    </div>
+  </div>
 
   <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxWl3z2ur3jYakNyFQXk1zDOWAAWsEDthQmUMlZ2eCZwSmjXWuTTMAb6u5IN8iSxLGPuA/exec';
@@ -959,7 +1077,8 @@
       document.getElementById('tb-title').textContent = title;
       document.getElementById('content').scrollTop = 0;
       if(name==='log' && habits.length>0) renderLogScreen();
-      if(name==='reports' && habits.length>0) renderReports();
+      if(name==='reports'  && habits.length>0) renderReports();
+      if(name==='settings' && habits.length>0) renderSettings();
     }
 
 
@@ -1534,6 +1653,282 @@
       });
       card.appendChild(legend);
       container.appendChild(card);
+    }
+
+
+
+    /* ════════════════════════════════════════════
+       SETTINGS SCREEN
+    ════════════════════════════════════════════ */
+
+    /* Available colors for habit color picker */
+    const COLOR_OPTIONS = [
+      { color:'#A78BFA', light:'#EDE9FE' }, // violet
+      { color:'#34D399', light:'#D1FAE5' }, // emerald
+      { color:'#FB923C', light:'#FFEDD5' }, // orange
+      { color:'#FBBF24', light:'#FEF3C7' }, // amber
+      { color:'#38BDF8', light:'#E0F2FE' }, // sky blue
+      { color:'#F472B6', light:'#FCE7F3' }, // pink
+      { color:'#EF4444', light:'#FEE2E2' }, // red
+      { color:'#818CF8', light:'#EEF2FF' }, // indigo
+      { color:'#2DD4BF', light:'#CCFBF1' }, // teal
+      { color:'#A3E635', light:'#F7FEE7' }, // lime
+      { color:'#FB7185', light:'#FFE4E6' }, // rose
+      { color:'#1A1A1A', light:'#F5F5F5' }, // black
+    ];
+
+    let editingHabit    = null; // habit being edited
+    let selectedColor   = null; // color selected in picker
+    let isNewHabit      = false; // true when adding a new habit
+
+    /* ── RENDER SETTINGS SCREEN ── */
+    function renderSettings() {
+      const container = document.getElementById('settings-content');
+      container.innerHTML = '';
+
+      /* Section label */
+      const lbl = document.createElement('div');
+      lbl.className = 'section-label';
+      lbl.textContent = 'Your habits';
+      container.appendChild(lbl);
+
+      /* One row per habit */
+      habits.forEach((habit, idx) => {
+        const row = document.createElement('div');
+        row.className = 'settings-habit-row';
+        row.onclick = () => openEditSheet(habit, false);
+        row.innerHTML = `
+          <div class="shr-icon">${ICONS[habit.id] || ICONS['mood']}</div>
+          <div class="shr-info">
+            <div class="shr-name">${habit.name}</div>
+            <div class="shr-sub">Tap to edit</div>
+          </div>
+          <div class="shr-dot" style="background:${habit.color}"></div>
+          <div class="shr-arrow">›</div>`;
+        container.appendChild(row);
+      });
+
+      /* Add new habit button */
+      const addBtn = document.createElement('button');
+      addBtn.className = 'settings-add-btn';
+      addBtn.textContent = '＋ Add new habit';
+      addBtn.onclick = () => openEditSheet(null, true);
+      container.appendChild(addBtn);
+
+      /* Data section */
+      const dataLbl = document.createElement('div');
+      dataLbl.className = 'section-label';
+      dataLbl.style.marginTop = '6px';
+      dataLbl.textContent = 'Data';
+      container.appendChild(dataLbl);
+
+      const exportRow = document.createElement('div');
+      exportRow.className = 'settings-habit-row';
+      exportRow.onclick = exportData;
+      exportRow.innerHTML = `
+        <div style="font-size:24px;width:36px;text-align:center">📤</div>
+        <div class="shr-info">
+          <div class="shr-name">Export data</div>
+          <div class="shr-sub">Download all entries as JSON</div>
+        </div>
+        <div class="shr-arrow">›</div>`;
+      container.appendChild(exportRow);
+    }
+
+    /* ── OPEN EDIT SHEET ── */
+    /*
+      Opens the bottom sheet for editing or adding a habit.
+      habit = null when adding new.
+      isNew = true when adding new.
+    */
+    function openEditSheet(habit, isNew) {
+      editingHabit = habit;
+      isNewHabit   = isNew;
+
+      // Set title
+      document.getElementById('edit-title').textContent =
+        isNew ? 'Add New Habit' : 'Edit ' + habit.name;
+
+      // Pre-fill fields
+      document.getElementById('edit-name').value =
+        isNew ? '' : habit.name;
+      document.getElementById('edit-emoji').value =
+        isNew ? '' : (habit.emoji || '✨');
+
+      // Build color picker
+      const picker = document.getElementById('color-picker');
+      picker.innerHTML = '';
+      selectedColor = isNew ? COLOR_OPTIONS[0] : { color: habit.color, light: habit.light };
+
+      COLOR_OPTIONS.forEach(opt => {
+        const swatch = document.createElement('div');
+        swatch.className = 'color-swatch' + (opt.color === selectedColor.color ? ' selected' : '');
+        swatch.style.background = opt.color;
+        swatch.onclick = () => {
+          selectedColor = opt;
+          document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+          swatch.classList.add('selected');
+        };
+        picker.appendChild(swatch);
+      });
+
+      // Show/hide delete button
+      document.getElementById('edit-delete-btn').style.display =
+        isNew ? 'none' : 'block';
+
+      // Update save button label
+      document.getElementById('edit-save-btn').textContent =
+        isNew ? '＋ Add habit' : 'Save changes';
+
+      // Open overlay
+      document.getElementById('edit-overlay').classList.add('open');
+    }
+
+    /* ── CLOSE EDIT SHEET ── */
+    function closeEditSheet(event) {
+      // Close only if clicking outside the sheet
+      if (event && event.target !== document.getElementById('edit-overlay')) return;
+      document.getElementById('edit-overlay').classList.remove('open');
+      editingHabit = null;
+    }
+
+    /* ── SAVE HABIT EDIT ── */
+    async function saveHabitEdit() {
+      const name  = document.getElementById('edit-name').value.trim();
+      const emoji = document.getElementById('edit-emoji').value.trim();
+
+      if (!name) {
+        alert('Please enter a habit name.');
+        return;
+      }
+
+      const saveBtn = document.getElementById('edit-save-btn');
+      saveBtn.textContent = 'Saving...';
+      saveBtn.disabled    = true;
+
+      try {
+        let habitData;
+
+        if (isNewHabit) {
+          // Generate a new unique id from the name
+          const newId = 'habit_' + Date.now();
+          habitData = {
+            id:     newId,
+            name:   name,
+            emoji:  emoji || '✨',
+            color:  selectedColor.color,
+            light:  selectedColor.light,
+            type:   'study', // default type for custom habits
+            order:  habits.length,
+            active: true
+          };
+        } else {
+          // Update existing habit
+          habitData = {
+            ...editingHabit,
+            name:  name,
+            emoji: emoji || editingHabit.emoji,
+            color: selectedColor.color,
+            light: selectedColor.light,
+          };
+        }
+
+        // Save to Google Sheets
+        const result = await apiPost('saveHabit', habitData);
+
+        if (result.success) {
+          // Update local habits array
+          if (isNewHabit) {
+            habits.push(habitData);
+            // Also add icon placeholder for new habit
+            ICONS[habitData.id] = `<svg viewBox="0 0 40 40">
+              <circle cx="20" cy="20" r="18" fill="${habitData.light}"/>
+              <text x="20" y="26" text-anchor="middle" font-size="18">${habitData.emoji || '✨'}</text>
+            </svg>`;
+          } else {
+            const idx = habits.findIndex(h => h.id === editingHabit.id);
+            if (idx !== -1) habits[idx] = habitData;
+          }
+
+          // Close sheet and refresh
+          document.getElementById('edit-overlay').classList.remove('open');
+          renderSettings();
+          buildTodayScreen(); // refresh today screen too
+
+          // Show success feedback
+          setTimeout(() => {
+            const msg = isNewHabit ? 'Habit added! 🎉' : 'Changes saved! ✅';
+            alert(msg);
+          }, 100);
+
+        } else {
+          throw new Error(result.error || 'Save failed');
+        }
+
+      } catch(err) {
+        console.error(err);
+        alert('Could not save. Check your connection and try again.');
+      } finally {
+        saveBtn.textContent = isNewHabit ? '＋ Add habit' : 'Save changes';
+        saveBtn.disabled    = false;
+      }
+    }
+
+    /* ── DELETE HABIT ── */
+    async function deleteHabitEdit() {
+      if (!editingHabit) return;
+
+      const confirmed = confirm(
+        'Delete "' + editingHabit.name + '"?
+
+' +
+        'This will remove the habit from your list. ' +
+        'Your logged entries will still be in Google Sheets.'
+      );
+      if (!confirmed) return;
+
+      try {
+        /*
+          We mark the habit as inactive rather than deleting it.
+          This preserves your historical data.
+        */
+        const result = await apiPost('saveHabit', {
+          ...editingHabit,
+          active: false
+        });
+
+        if (result.success) {
+          // Remove from local habits array
+          habits = habits.filter(h => h.id !== editingHabit.id);
+          document.getElementById('edit-overlay').classList.remove('open');
+          renderSettings();
+          buildTodayScreen();
+        } else {
+          throw new Error(result.error || 'Delete failed');
+        }
+      } catch(err) {
+        console.error(err);
+        alert('Could not delete. Check your connection.');
+      }
+    }
+
+    /* ── EXPORT DATA ── */
+    function exportData() {
+      const data = {
+        exportedAt: new Date().toISOString(),
+        habits:     habits,
+        entries:    allEntries
+      };
+      const blob = new Blob(
+        [JSON.stringify(data, null, 2)],
+        { type: 'application/json' }
+      );
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = 'habit-tracker-export-' + getTodayString() + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
     }
 
     /* ── STARTUP ── */
