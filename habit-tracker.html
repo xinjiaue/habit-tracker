@@ -267,6 +267,129 @@
     .placeholder-screen { text-align:center; padding:48px 20px; color:var(--muted); }
     .placeholder-screen .ph-icon  { font-size:40px; margin-bottom:12px; }
     .placeholder-screen .ph-title { font-size:15px; font-weight:500; color:var(--text); margin-bottom:6px; }
+
+    /* ════════════════════════════════
+       REPORTS SCREEN
+    ════════════════════════════════ */
+    .report-tabs {
+      display:flex; background:var(--surface);
+      border-radius:10px; padding:3px; margin-bottom:14px;
+    }
+    .report-tab {
+      flex:1; border:none; background:none; border-radius:8px;
+      padding:7px 0; font-size:11px; color:var(--muted);
+      cursor:pointer; font-weight:500; font-family:var(--font);
+      transition:all 0.15s;
+    }
+    .report-tab.active {
+      background:var(--white); color:var(--text);
+      border:1px solid var(--border);
+    }
+    .report-view { display:none; }
+    .report-view.active { display:block; }
+
+    /* Habit section card */
+    .report-habit-card {
+      background:var(--white); border:1px solid var(--border);
+      border-radius:12px; padding:12px; margin-bottom:10px;
+    }
+    .rhc-header {
+      display:flex; align-items:center; gap:8px; margin-bottom:10px;
+    }
+    .rhc-icon { width:32px; height:32px; flex-shrink:0; }
+    .rhc-icon svg { width:100%; height:100%; }
+    .rhc-name { font-size:13px; font-weight:500; color:var(--text); }
+    .rhc-streak { font-size:10px; color:var(--muted); margin-top:1px; }
+    .rhc-score {
+      margin-left:auto; font-size:11px; font-weight:500;
+    }
+
+    /* Grid rows */
+    .rhc-grid { display:flex; flex-direction:column; gap:2px; }
+    .rhc-row  { display:flex; gap:2px; }
+    .rhc-cell { flex:1; height:8px; border-radius:2px; min-width:0; }
+
+    /* Day labels */
+    .rhc-labels {
+      display:flex; gap:2px; margin-top:3px;
+    }
+    .rhc-label {
+      flex:1; text-align:center; font-size:8px;
+      color:var(--muted); min-width:0;
+    }
+
+    /* Nav row for date navigation */
+    .report-nav {
+      display:flex; align-items:center;
+      justify-content:space-between; margin-bottom:12px;
+    }
+    .report-nav-btn {
+      background:none; border:none; font-size:20px;
+      color:var(--muted); cursor:pointer; padding:0 8px;
+      font-family:var(--font);
+    }
+    .report-nav-title {
+      font-size:13px; font-weight:500; color:var(--text);
+    }
+
+    /* Daily entry card */
+    .daily-entry-card {
+      background:var(--white); border:1px solid var(--border);
+      border-radius:12px; padding:11px 13px; margin-bottom:8px;
+      display:flex; align-items:flex-start; gap:10px;
+    }
+    .dec-icon { width:32px; height:32px; flex-shrink:0; }
+    .dec-icon svg { width:100%; height:100%; }
+    .dec-name { font-size:13px; font-weight:500; color:var(--text); }
+    .dec-val  { font-size:11px; color:var(--muted); margin-top:3px; line-height:1.4; }
+    .dec-badge {
+      margin-left:auto; font-size:10px; font-weight:500;
+      padding:2px 8px; border-radius:20px; white-space:nowrap; flex-shrink:0;
+    }
+    .dec-badge.done { background:#D1FAE5; color:#065F46; }
+    .dec-badge.rest { background:#F5F5F5; color:#888; }
+    .dec-badge.none { background:#F5F5F5; color:#ccc; }
+
+    /* Habit selector for yearly view */
+    .habit-selector {
+      display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;
+    }
+    .habit-sel-btn {
+      border:1.5px solid var(--border); background:var(--white);
+      border-radius:20px; padding:5px 10px; font-size:11px;
+      color:var(--muted); cursor:pointer; font-family:var(--font);
+      display:flex; align-items:center; gap:5px; transition:all 0.15s;
+    }
+    .habit-sel-btn svg { width:16px; height:16px; }
+    .habit-sel-btn.active { color:var(--white); border-color:transparent; }
+
+    /* Yearly grid */
+    .yearly-grid-wrap {
+      background:var(--white); border:1px solid var(--border);
+      border-radius:12px; padding:12px; overflow-x:auto;
+    }
+    .yearly-month-labels {
+      display:flex; margin-bottom:4px;
+    }
+    .yearly-month-lbl {
+      font-size:8px; color:var(--muted); flex-shrink:0;
+    }
+    .yearly-rows { display:flex; flex-direction:column; gap:2px; }
+    .yearly-row  { display:flex; gap:2px; }
+    .yearly-cell { width:8px; height:8px; border-radius:1.5px; flex-shrink:0; }
+
+    /* Legend */
+    .color-legend {
+      display:flex; align-items:center; gap:8px;
+      flex-wrap:wrap; margin-top:8px;
+    }
+    .legend-item {
+      display:flex; align-items:center; gap:3px;
+      font-size:9px; color:var(--muted);
+    }
+    .legend-dot {
+      width:8px; height:8px; border-radius:2px; flex-shrink:0;
+    }
   </style>
 </head>
 <body>
@@ -314,11 +437,7 @@
 
     <!-- REPORTS -->
     <div class="screen" id="screen-reports">
-      <div class="placeholder-screen">
-        <div class="ph-icon">📊</div>
-        <div class="ph-title">Reports Screen</div>
-        Coming in Step 5
-      </div>
+      <div id="reports-content" style="padding:14px"></div>
     </div>
 
     <!-- SETTINGS -->
@@ -840,6 +959,581 @@
       document.getElementById('tb-title').textContent = title;
       document.getElementById('content').scrollTop = 0;
       if(name==='log' && habits.length>0) renderLogScreen();
+      if(name==='reports' && habits.length>0) renderReports();
+    }
+
+
+
+    /* ════════════════════════════════════════════
+       REPORTS SCREEN
+    ════════════════════════════════════════════ */
+
+    let reportTab      = 'daily';
+    let reportDayOff   = 0;   // 0=today, -1=yesterday, etc
+    let reportWeekOff  = 0;   // 0=this week, -1=last week
+    let reportMonthOff = 0;   // 0=this month
+    let yearlyHabitIdx = 0;   // which habit shown in yearly
+
+    /* ── Color intensity functions ── */
+
+    /*
+      getDurationColor(habitId, entry)
+      Returns a CSS color based on the entry value.
+      Different logic per habit type.
+    */
+    function getDurationColor(habit, entry) {
+      if (!entry) return 'var(--border)'; // not logged → white/empty
+      if (entry.value && entry.value.skipped) return '#E5E5E5'; // rest day → gray
+
+      const v = entry.value || {};
+
+      // MOOD — unique color per score
+      if (habit.type === 'mood') {
+        const moodColors = {
+          1: '#EF4444', // 😞 red
+          2: '#FB923C', // 😕 orange
+          3: '#FCD34D', // 😐 yellow
+          4: '#4ADE80', // 😊 green
+          5: '#16A34A'  // 😄 dark green
+        };
+        return moodColors[v.score] || habit.light;
+      }
+
+      // SLEEP — intensity by hours
+      if (habit.type === 'sleep') {
+        const hrs = v.duration || 0;
+        if (hrs < 6)   return habit.color + '33'; // very light
+        if (hrs < 7)   return habit.color + '66'; // light
+        if (hrs < 8)   return habit.color + '99'; // medium
+        if (hrs < 9)   return habit.color + 'CC'; // dark
+        return habit.color;                         // darkest 9h+
+      }
+
+      // DURATION habits (exercise, finance, language, tech)
+      // Intensity by minutes studied/exercised
+      const mins = v.duration || 0;
+      if (mins <= 0)   return habit.light;           // nothing
+      if (mins <= 20)  return habit.color + '44';    // 1-20 min very light
+      if (mins <= 40)  return habit.color + '77';    // 21-40 light
+      if (mins <= 60)  return habit.color + 'AA';    // 41-60 medium
+      if (mins <= 90)  return habit.color + 'DD';    // 61-90 dark
+      return habit.color;                             // 91+ darkest
+    }
+
+    /* Get legend items for a habit */
+    function getLegend(habit) {
+      const items = [];
+      items.push({ color:'#E5E5E5', label:'Rest day' });
+
+      if (habit.type === 'mood') {
+        items.push({ color:'#EF4444', label:'😞' });
+        items.push({ color:'#FB923C', label:'😕' });
+        items.push({ color:'#FCD34D', label:'😐' });
+        items.push({ color:'#4ADE80', label:'😊' });
+        items.push({ color:'#16A34A', label:'😄' });
+      } else if (habit.type === 'sleep') {
+        items.push({ color:habit.color+'44', label:'<6h' });
+        items.push({ color:habit.color+'99', label:'7-8h' });
+        items.push({ color:habit.color,      label:'9h+' });
+      } else {
+        items.push({ color:habit.color+'44', label:'15m' });
+        items.push({ color:habit.color+'99', label:'45m' });
+        items.push({ color:habit.color,      label:'90m+' });
+      }
+      return items;
+    }
+
+    /* ── MAIN REPORTS RENDERER ── */
+    function renderReports() {
+      const container = document.getElementById('reports-content');
+      container.innerHTML = '';
+
+      // Tab bar
+      const tabBar = document.createElement('div');
+      tabBar.className = 'report-tabs';
+      ['daily','weekly','monthly','yearly'].forEach(t => {
+        const btn = document.createElement('button');
+        btn.className = 'report-tab' + (t === reportTab ? ' active' : '');
+        btn.textContent = t.charAt(0).toUpperCase() + t.slice(1);
+        btn.onclick = () => { reportTab = t; renderReports(); };
+        tabBar.appendChild(btn);
+      });
+      container.appendChild(tabBar);
+
+      // Render the active view
+      if (reportTab === 'daily')   renderDailyReport(container);
+      if (reportTab === 'weekly')  renderWeeklyReport(container);
+      if (reportTab === 'monthly') renderMonthlyReport(container);
+      if (reportTab === 'yearly')  renderYearlyReport(container);
+    }
+
+    /* ══════════════════════════════
+       DAILY REPORT
+       Shows each habit for one day.
+       Navigate with ← → arrows.
+    ══════════════════════════════ */
+    function renderDailyReport(container) {
+      const today = new Date();
+      const d = new Date(today);
+      d.setDate(today.getDate() + reportDayOff);
+      const dateStr = d.toISOString().split('T')[0];
+      const isToday = reportDayOff === 0;
+
+      // Nav row
+      const nav = document.createElement('div');
+      nav.className = 'report-nav';
+      nav.innerHTML = `
+        <button class="report-nav-btn" onclick="reportDayOff--; renderReports()">‹</button>
+        <div class="report-nav-title">${isToday ? 'Today · ' : ''}${formatDateNice(dateStr).split(',')[0] + ',' + formatDateNice(dateStr).split(',').slice(1).join(',')}</div>
+        <button class="report-nav-btn" onclick="if(reportDayOff<0){reportDayOff++; renderReports();}"
+          style="opacity:${reportDayOff < 0 ? '1' : '0.3'}">›</button>`;
+      container.appendChild(nav);
+
+      // One card per habit
+      habits.forEach(habit => {
+        const entry = allEntries.find(e => e.habitId === habit.id && e.date === dateStr);
+        const isLogged = entry && !entry.value?.skipped;
+        const isSkip   = entry && entry.value?.skipped;
+
+        const card = document.createElement('div');
+        card.className = 'daily-entry-card';
+
+        const iconDiv = document.createElement('div');
+        iconDiv.className = 'dec-icon';
+        iconDiv.innerHTML = ICONS[habit.id] || '';
+
+        const infoDiv = document.createElement('div');
+        infoDiv.style.flex = '1';
+        infoDiv.style.minWidth = '0';
+
+        const nameEl = document.createElement('div');
+        nameEl.className = 'dec-name';
+        nameEl.textContent = habit.name;
+
+        const valEl = document.createElement('div');
+        valEl.className = 'dec-val';
+
+        if (isLogged) {
+          const v = entry.value;
+          if (habit.type === 'sleep') {
+            valEl.textContent = v.bedtime + ' → ' + v.wakeup + ' · ' + v.duration + 'h';
+          } else if (habit.type === 'mood') {
+            const moodEmojis = ['','😞','😕','😐','😊','😄'];
+            const moodLabels = ['','Awful','Bad','OK','Good','Great'];
+            valEl.textContent = moodEmojis[v.score] + ' ' + moodLabels[v.score] + (v.note ? ' · "' + v.note + '"' : '');
+          } else if (habit.type === 'exercise') {
+            valEl.textContent = v.activity + ' · ' + v.duration + ' min' + (v.notes ? ' · ' + v.notes : '');
+          } else {
+            valEl.textContent = (v.topic || '') + (v.duration ? ' · ' + v.duration + ' min' : '') + (v.resource ? ' · ' + v.resource : '');
+          }
+        } else if (isSkip) {
+          valEl.textContent = 'Rest day recorded';
+          valEl.style.color = '#bbb';
+        } else {
+          valEl.textContent = 'Not logged this day';
+          valEl.style.color = '#ddd';
+        }
+
+        infoDiv.appendChild(nameEl);
+        infoDiv.appendChild(valEl);
+
+        // Badge — "Done" not "Logged"
+        const badge = document.createElement('div');
+        badge.className = 'dec-badge ' + (isLogged ? 'done' : isSkip ? 'rest' : 'none');
+        badge.textContent = isLogged ? '✓ Done' : isSkip ? '— Rest' : 'Not logged';
+        if (isLogged) badge.style.color = habit.color;
+        if (isLogged) badge.style.background = habit.light;
+
+        card.appendChild(iconDiv);
+        card.appendChild(infoDiv);
+        card.appendChild(badge);
+        container.appendChild(card);
+      });
+    }
+
+    /* ══════════════════════════════
+       WEEKLY REPORT
+       Each habit = one section with
+       7-cell grid (Mon → Sun).
+       Color intensity by duration.
+    ══════════════════════════════ */
+    function renderWeeklyReport(container) {
+      const today = new Date();
+      // Find Monday of current week + offset
+      const day = today.getDay(); // 0=Sun
+      const monday = new Date(today);
+      monday.setDate(today.getDate() - (day === 0 ? 6 : day - 1) + reportWeekOff * 7);
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+
+      const fmt = (d) => d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+
+      // Nav
+      const nav = document.createElement('div');
+      nav.className = 'report-nav';
+      nav.innerHTML = `
+        <button class="report-nav-btn" onclick="reportWeekOff--; renderReports()">‹</button>
+        <div class="report-nav-title">${fmt(monday)} — ${fmt(sunday)}</div>
+        <button class="report-nav-btn" onclick="if(reportWeekOff<0){reportWeekOff++; renderReports();}"
+          style="opacity:${reportWeekOff < 0 ? '1' : '0.3'}">›</button>`;
+      container.appendChild(nav);
+
+      const dayLabels = ['M','T','W','T','F','S','S'];
+
+      habits.forEach(habit => {
+        const card = document.createElement('div');
+        card.className = 'report-habit-card';
+
+        // Count logged days this week
+        let logged = 0;
+        const cells = [];
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(monday);
+          d.setDate(monday.getDate() + i);
+          const dateStr = d.toISOString().split('T')[0];
+          const todayStr = today.toISOString().split('T')[0];
+          const isFuture = dateStr > todayStr;
+          const isToday  = dateStr === todayStr;
+          const entry    = allEntries.find(e => e.habitId === habit.id && e.date === dateStr);
+          if (entry && !entry.value?.skipped) logged++;
+          cells.push({ entry, isFuture, isToday, dateStr });
+        }
+
+        // Header
+        const hdr = document.createElement('div');
+        hdr.className = 'rhc-header';
+        hdr.innerHTML = `<div class="rhc-icon">${ICONS[habit.id]}</div>
+          <div>
+            <div class="rhc-name">${habit.name}</div>
+            <div class="rhc-streak">${calcStreak(habit.id) > 0 ? '🔥 ' + calcStreak(habit.id) + ' days' : 'No streak yet'}</div>
+          </div>
+          <div class="rhc-score" style="color:${habit.color}">${logged}/7</div>`;
+
+        // 7-cell grid
+        const row = document.createElement('div');
+        row.className = 'rhc-row';
+        cells.forEach(({ entry, isFuture, isToday }) => {
+          const cell = document.createElement('div');
+          cell.className = 'rhc-cell';
+          if (isFuture) {
+            cell.style.background = 'var(--white)';
+            cell.style.border = '1px solid var(--border)';
+          } else {
+            cell.style.background = getDurationColor(habit, entry);
+          }
+          if (isToday) {
+            cell.style.outline = '2px solid ' + habit.color;
+            cell.style.outlineOffset = '1px';
+          }
+          row.appendChild(cell);
+        });
+
+        // Day labels
+        const lblRow = document.createElement('div');
+        lblRow.className = 'rhc-labels';
+        dayLabels.forEach(l => {
+          const lbl = document.createElement('div');
+          lbl.className = 'rhc-label';
+          lbl.textContent = l;
+          lblRow.appendChild(lbl);
+        });
+
+        // Legend
+        const legend = document.createElement('div');
+        legend.className = 'color-legend';
+        getLegend(habit).forEach(item => {
+          legend.innerHTML += `<div class="legend-item">
+            <div class="legend-dot" style="background:${item.color}"></div>
+            <span>${item.label}</span>
+          </div>`;
+        });
+
+        card.appendChild(hdr);
+        card.appendChild(row);
+        card.appendChild(lblRow);
+        card.appendChild(legend);
+        container.appendChild(card);
+      });
+    }
+
+    /* ══════════════════════════════
+       MONTHLY REPORT
+       Each habit = calendar grid
+       showing all days of month.
+       Future days = white.
+    ══════════════════════════════ */
+    function renderMonthlyReport(container) {
+      const today = new Date();
+      const d = new Date(today.getFullYear(), today.getMonth() + reportMonthOff, 1);
+      const year  = d.getFullYear();
+      const month = d.getMonth();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const firstDay    = new Date(year, month, 1).getDay(); // 0=Sun
+      const todayStr    = today.toISOString().split('T')[0];
+      const monthNames  = ['January','February','March','April','May','June',
+                           'July','August','September','October','November','December'];
+
+      // Nav
+      const nav = document.createElement('div');
+      nav.className = 'report-nav';
+      nav.innerHTML = `
+        <button class="report-nav-btn" onclick="reportMonthOff--; renderReports()">‹</button>
+        <div class="report-nav-title">${monthNames[month]} ${year}</div>
+        <button class="report-nav-btn" onclick="if(reportMonthOff<0){reportMonthOff++; renderReports();}"
+          style="opacity:${reportMonthOff < 0 ? '1' : '0.3'}">›</button>`;
+      container.appendChild(nav);
+
+      // Day of week headers
+      const dowWrap = document.createElement('div');
+      dowWrap.style.cssText = 'display:flex;gap:2px;margin-bottom:4px;padding:0 12px';
+      ['S','M','T','W','T','F','S'].forEach(l => {
+        const el = document.createElement('div');
+        el.style.cssText = 'flex:1;text-align:center;font-size:9px;color:var(--muted);font-weight:500';
+        el.textContent = l;
+        dowWrap.appendChild(el);
+      });
+
+      habits.forEach(habit => {
+        const card = document.createElement('div');
+        card.className = 'report-habit-card';
+
+        // Count logged
+        let logged = 0;
+        for (let day = 1; day <= daysInMonth; day++) {
+          const dateStr = year + '-' + String(month+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
+          const entry = allEntries.find(e => e.habitId === habit.id && e.date === dateStr);
+          if (entry && !entry.value?.skipped) logged++;
+        }
+
+        // Header
+        const hdr = document.createElement('div');
+        hdr.className = 'rhc-header';
+        hdr.innerHTML = `<div class="rhc-icon">${ICONS[habit.id]}</div>
+          <div><div class="rhc-name">${habit.name}</div></div>
+          <div class="rhc-score" style="color:${habit.color}">${logged}/${daysInMonth} days</div>`;
+        card.appendChild(hdr);
+
+        // Day of week header row
+        const dowRow = document.createElement('div');
+        dowRow.style.cssText = 'display:flex;gap:2px;margin-bottom:3px';
+        ['S','M','T','W','T','F','S'].forEach(l => {
+          const el = document.createElement('div');
+          el.style.cssText = 'flex:1;text-align:center;font-size:8px;color:var(--muted)';
+          el.textContent = l;
+          dowRow.appendChild(el);
+        });
+        card.appendChild(dowRow);
+
+        // Calendar grid
+        const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+        const gridWrap = document.createElement('div');
+        gridWrap.className = 'rhc-grid';
+
+        for (let i = 0; i < totalCells; i += 7) {
+          const row = document.createElement('div');
+          row.className = 'rhc-row';
+          for (let j = 0; j < 7; j++) {
+            const cellIdx = i + j;
+            const dayNum  = cellIdx - firstDay + 1;
+            const cell    = document.createElement('div');
+            cell.className = 'rhc-cell';
+            cell.style.height = '10px';
+
+            if (dayNum < 1 || dayNum > daysInMonth) {
+              cell.style.background = 'transparent';
+            } else {
+              const dateStr  = year + '-' + String(month+1).padStart(2,'0') + '-' + String(dayNum).padStart(2,'0');
+              const isToday  = dateStr === todayStr;
+              const isFuture = dateStr > todayStr;
+              const entry    = allEntries.find(e => e.habitId === habit.id && e.date === dateStr);
+
+              if (isFuture) {
+                cell.style.background = 'var(--white)';
+                cell.style.border = '1px solid var(--border)';
+              } else {
+                cell.style.background = getDurationColor(habit, entry);
+              }
+
+              if (isToday) {
+                cell.style.outline = '2px solid ' + habit.color;
+                cell.style.outlineOffset = '1px';
+              }
+              cell.title = dateStr + (entry ? ' ✓' : '');
+            }
+            row.appendChild(cell);
+          }
+          gridWrap.appendChild(row);
+        }
+        card.appendChild(gridWrap);
+
+        // Legend
+        const legend = document.createElement('div');
+        legend.className = 'color-legend';
+        legend.style.marginTop = '8px';
+        getLegend(habit).forEach(item => {
+          legend.innerHTML += `<div class="legend-item">
+            <div class="legend-dot" style="background:${item.color}"></div>
+            <span>${item.label}</span>
+          </div>`;
+        });
+        card.appendChild(legend);
+        container.appendChild(card);
+      });
+    }
+
+    /* ══════════════════════════════
+       YEARLY REPORT
+       One habit at a time (selector).
+       365/366 days shown as a grid.
+       Rows = weeks, cols = days.
+       Future = white.
+    ══════════════════════════════ */
+    function renderYearlyReport(container) {
+      const today   = new Date();
+      const year    = today.getFullYear();
+      const todayStr = today.toISOString().split('T')[0];
+      const isLeap  = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+      const daysInYear = isLeap ? 366 : 365;
+
+      // Jan 1 of this year
+      const jan1    = new Date(year, 0, 1);
+      const startDay = jan1.getDay(); // 0=Sun
+
+      // Habit selector
+      const selector = document.createElement('div');
+      selector.className = 'habit-selector';
+      habits.forEach((habit, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'habit-sel-btn' + (idx === yearlyHabitIdx ? ' active' : '');
+        btn.innerHTML = `<span>${ICONS[habit.id].replace('viewBox','style="width:16px;height:16px" viewBox')}</span> ${habit.name}`;
+        if (idx === yearlyHabitIdx) {
+          btn.style.background   = habit.color;
+          btn.style.borderColor  = habit.color;
+        }
+        btn.onclick = () => { yearlyHabitIdx = idx; renderReports(); };
+        selector.appendChild(btn);
+      });
+      container.appendChild(selector);
+
+      const habit = habits[yearlyHabitIdx];
+
+      // Stats
+      let loggedCount = 0;
+      let skipCount   = 0;
+      for (let i = 0; i < daysInYear; i++) {
+        const d = new Date(year, 0, 1 + i);
+        const dateStr = d.toISOString().split('T')[0];
+        if (dateStr > todayStr) break;
+        const entry = allEntries.find(e => e.habitId === habit.id && e.date === dateStr);
+        if (entry && !entry.value?.skipped) loggedCount++;
+        if (entry && entry.value?.skipped)  skipCount++;
+      }
+
+      // Stats row
+      const statsRow = document.createElement('div');
+      statsRow.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px';
+      statsRow.innerHTML = `
+        <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:10px">
+          <div style="font-size:20px;font-weight:500;color:${habit.color}">${loggedCount}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">Days done</div>
+        </div>
+        <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:10px">
+          <div style="font-size:20px;font-weight:500;color:var(--text)">${calcStreak(habit.id)}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">🔥 Streak</div>
+        </div>
+        <div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:10px">
+          <div style="font-size:20px;font-weight:500;color:var(--text)">${skipCount}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">Rest days</div>
+        </div>`;
+      container.appendChild(statsRow);
+
+      // Month labels
+      const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const monthLblRow = document.createElement('div');
+      monthLblRow.style.cssText = 'display:flex;margin-bottom:2px;padding:0 2px';
+
+      // Calculate week positions for month labels
+      let currentMonth = -1;
+      const totalCells = Math.ceil((startDay + daysInYear) / 7) * 7;
+      const weeks = totalCells / 7;
+
+      // Build the yearly grid
+      const gridWrap = document.createElement('div');
+      gridWrap.style.cssText = 'overflow-x:auto;padding-bottom:4px';
+
+      const innerWrap = document.createElement('div');
+      innerWrap.style.cssText = `display:flex;flex-direction:column;gap:2px;width:${weeks * 10}px`;
+
+      // Month label row
+      const mlRow = document.createElement('div');
+      mlRow.style.cssText = `display:flex;width:${weeks * 10}px;margin-bottom:2px`;
+
+      // Build weeks
+      const weekRows = [];
+      for (let w = 0; w < weeks; w++) {
+        const weekEl = document.createElement('div');
+        weekEl.style.cssText = 'display:flex;flex-direction:column;gap:2px;flex-shrink:0;width:8px;margin-right:2px';
+        weekRows.push(weekEl);
+        innerWrap.appendChild(weekEl);
+      }
+
+      // Fill cells
+      for (let i = 0; i < totalCells; i++) {
+        const dayIdx  = i - startDay;
+        const weekIdx = Math.floor(i / 7);
+        const weekEl  = weekRows[weekIdx];
+
+        const cell = document.createElement('div');
+        cell.style.cssText = 'width:8px;height:8px;border-radius:1.5px;flex-shrink:0';
+
+        if (dayIdx < 0 || dayIdx >= daysInYear) {
+          cell.style.background = 'transparent';
+        } else {
+          const d = new Date(year, 0, 1 + dayIdx);
+          const dateStr  = d.toISOString().split('T')[0];
+          const isToday  = dateStr === todayStr;
+          const isFuture = dateStr > todayStr;
+          const entry    = allEntries.find(e => e.habitId === habit.id && e.date === dateStr);
+
+          if (isFuture) {
+            cell.style.background = 'var(--white)';
+            cell.style.border     = '1px solid var(--border)';
+          } else {
+            cell.style.background = getDurationColor(habit, entry);
+          }
+          if (isToday) {
+            cell.style.outline      = '2px solid ' + habit.color;
+            cell.style.outlineOffset = '1px';
+          }
+          cell.title = dateStr;
+        }
+        weekEl.appendChild(cell);
+      }
+
+      gridWrap.appendChild(innerWrap);
+
+      // Wrap in card
+      const card = document.createElement('div');
+      card.className = 'report-habit-card';
+      const hdr = document.createElement('div');
+      hdr.className = 'rhc-header';
+      hdr.innerHTML = `<div class="rhc-icon">${ICONS[habit.id]}</div>
+        <div><div class="rhc-name">${habit.name} · ${year}</div>
+        <div class="rhc-streak">Each cell = one day</div></div>`;
+      card.appendChild(hdr);
+      card.appendChild(gridWrap);
+
+      // Legend
+      const legend = document.createElement('div');
+      legend.className = 'color-legend';
+      getLegend(habit).forEach(item => {
+        legend.innerHTML += `<div class="legend-item">
+          <div class="legend-dot" style="background:${item.color}"></div>
+          <span>${item.label}</span>
+        </div>`;
+      });
+      card.appendChild(legend);
+      container.appendChild(card);
     }
 
     /* ── STARTUP ── */
