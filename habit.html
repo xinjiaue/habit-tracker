@@ -2,9 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#ffffff" />
+
+  <!-- PWA: Makes app installable on phone home screen -->
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Habits" />
+
+  <!-- App icon for home screen (inline SVG converted to data URL) -->
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='115' fill='%231A1A1A'/%3E%3Ctext x='256' y='340' text-anchor='middle' font-size='280' font-family='sans-serif'%3E✨%3C/text%3E%3C/svg%3E" />
+
+  <!-- Web App Manifest -->
+  <link rel="manifest" href="manifest.json">
+
   <title>Habit Tracker</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -511,6 +523,13 @@
     <div class="login-hint">Your data is stored separately per email.</div>
   </div>
 
+  <!-- Install banner - shown on first visit -->
+  <div id="install-banner" style="display:none;background:#1A1A1A;color:#fff;padding:10px 16px;font-size:12px;align-items:center;gap:10px;flex-shrink:0">
+    <span style="flex:1">📱 Add to home screen for the best experience!</span>
+    <button onclick="showInstallGuide()" style="background:#fff;color:#1A1A1A;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:500;cursor:pointer">How?</button>
+    <button onclick="document.getElementById('install-banner').style.display='none';localStorage.setItem('banner-dismissed','1')" style="background:none;border:none;color:#888;font-size:18px;cursor:pointer;padding:0">×</button>
+  </div>
+
   <div id="top-bar">
     <div class="top-bar-inner">
       <div>
@@ -698,8 +717,8 @@
         await apiPost('initHabits', {});
         const raw = await apiGet('getHabits');
 
-        /* Sort habits: Mood -> Sleep -> Exercise -> Language -> Finance -> Tech */
-        habits = raw.sort((a,b) => {
+        /* Filter out inactive habits + Sort: Mood -> Sleep -> Exercise -> Language -> Finance -> Tech */
+        habits = raw.filter(h => h.active !== false && h.active !== 'false').sort((a,b) => {
           const ai = HABIT_ORDER.indexOf(a.id);
           const bi = HABIT_ORDER.indexOf(b.id);
           if (ai === -1 && bi === -1) return 0;
@@ -713,6 +732,8 @@
         todayEntries = allEntries.filter(e => e.date === today);
         document.getElementById('tb-sub').textContent = formatDateNice(today);
         buildTodayScreen();
+        // Show install banner
+        setTimeout(checkInstallBanner, 1000);
       } catch(err) {
         console.error(err);
         const b = document.getElementById('error-banner');
@@ -1899,24 +1920,22 @@
     /* -- DELETE HABIT -- */
     async function deleteHabitEdit() {
       if (!editingHabit) return;
-
-      const confirmed = confirm('Delete ' + editingHabit.name + '? This will remove the habit. Your history is kept safe.');
+      const confirmed = confirm('Delete ' + editingHabit.name + '? Your logged history is kept safe.');
       if (!confirmed) return;
-
       try {
-        /*
-          We mark the habit as inactive rather than deleting it.
-          This preserves your historical data.
-        */
         const result = await apiPost('saveHabit', {
-          ...editingHabit,
+          id:     editingHabit.id,
+          name:   editingHabit.name,
+          color:  editingHabit.color,
+          light:  editingHabit.light,
+          type:   editingHabit.type,
+          order:  editingHabit.order,
           active: false
         });
-
         if (result.success) {
-          // Remove from local habits array
           habits = habits.filter(h => h.id !== editingHabit.id);
-          document.getElementById('edit-overlay').classList.remove('open');
+          editingHabit = null;
+          document.getElementById('edit-overlay').style.display = 'none';
           renderSettings();
           buildTodayScreen();
         } else {
@@ -1924,7 +1943,7 @@
         }
       } catch(err) {
         console.error(err);
-        alert('Could not delete. Check your connection.');
+        alert('Could not delete. Please remove it directly from Google Sheets habits tab.');
       }
     }
 
@@ -1948,6 +1967,46 @@
     }
 
     /* -- STARTUP -- */
+    /* Show install banner if not dismissed */
+    function checkInstallBanner() {
+      if (!localStorage.getItem('banner-dismissed')) {
+        const banner = document.getElementById('install-banner');
+        if (banner) banner.style.display = 'flex';
+      }
+    }
+
+    /* Show step-by-step install guide */
+    function showInstallGuide() {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const isAndroid = /Android/.test(navigator.userAgent);
+
+      let msg = '';
+      if (isIOS) {
+        msg = 'Add to Home Screen on iPhone/iPad:\n\n' +
+          '1. Tap the Share button (box with arrow) at bottom of Safari\n' +
+          '2. Scroll down and tap "Add to Home Screen"\n' +
+          '3. Tap "Add" in the top right\n\n' +
+          'The app icon will appear on your home screen!';
+      } else if (isAndroid) {
+        msg = 'Add to Home Screen on Android:\n\n' +
+          '1. Tap the 3-dot menu (...) in Chrome top right\n' +
+          '2. Tap "Add to Home screen"\n' +
+          '3. Tap "Add"\n\n' +
+          'The app icon will appear on your home screen!';
+      } else {
+        msg = 'To install on your phone:\n\n' +
+          'ANDROID (Chrome):\n' +
+          '1. Tap ... menu top right\n' +
+          '2. Tap "Add to Home screen"\n' +
+          '3. Tap "Add"\n\n' +
+          'iPHONE (Safari):\n' +
+          '1. Tap Share button at bottom\n' +
+          '2. Tap "Add to Home Screen"\n' +
+          '3. Tap "Add"';
+      }
+      alert(msg);
+    }
+
     // Close overlay when clicking the dark background
     document.addEventListener('click', function(e) {
       const overlay = document.getElementById('edit-overlay');
