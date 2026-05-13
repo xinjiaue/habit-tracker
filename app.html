@@ -1581,7 +1581,8 @@
       habits.forEach((habit, idx) => {
         const btn = document.createElement('button');
         btn.className = 'habit-sel-btn' + (idx===yearlyHabitIdx ? ' active' : '');
-        btn.innerHTML = `<span>${ICONS[habit.id].replace('viewBox','style="width:16px;height:16px" viewBox')}</span>${habit.name}`;
+        const iconSmall = (ICONS[habit.id] || '').replace('viewBox', 'style="width:16px;height:16px" viewBox');
+        btn.innerHTML = '<span>' + iconSmall + '</span>' + habit.name;
         if (idx===yearlyHabitIdx) { btn.style.background=habit.color; btn.style.borderColor=habit.color; }
         btn.onclick = () => { yearlyHabitIdx=idx; renderReports(); };
         selector.appendChild(btn);
