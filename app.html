@@ -1705,36 +1705,47 @@
       const container = document.getElementById('settings-content');
       container.innerHTML = '';
 
-      /* Section label */
+      // Version marker to confirm new file loaded
+      const ver = document.createElement('div');
+      ver.style.cssText = 'font-size:10px;color:#bbb;margin-bottom:12px';
+      ver.textContent = 'Settings v4';
+      container.appendChild(ver);
+
       const lbl = document.createElement('div');
       lbl.className = 'section-label';
       lbl.textContent = 'Your habits';
       container.appendChild(lbl);
 
-      /* One row per habit — store habits in window for onclick access */
-      window._settingsHabits = habits;
-      habits.forEach((habit, idx) => {
+      // Store globally for onclick
+      window._habits = habits;
+
+      habits.forEach(function(habit, i) {
         const row = document.createElement('div');
         row.className = 'settings-habit-row';
-        row.setAttribute('onclick', 'openEditSheet(window._settingsHabits[' + idx + '], false)');
         row.style.cursor = 'pointer';
+
+        // Use inline onclick string - most reliable method
+        row.setAttribute('onclick', 'window._openEdit(' + i + ')');
 
         const iconDiv = document.createElement('div');
         iconDiv.className = 'shr-icon';
         iconDiv.innerHTML = ICONS[habit.id] || ICONS['mood'];
+        iconDiv.style.pointerEvents = 'none'; // prevent icon blocking click
 
         const infoDiv = document.createElement('div');
         infoDiv.className = 'shr-info';
-        infoDiv.innerHTML = '<div class="shr-name">' + habit.name + '</div>' +
-          '<div class="shr-sub">Tap to edit</div>';
+        infoDiv.style.pointerEvents = 'none';
+        infoDiv.innerHTML = '<div class="shr-name">' + habit.name + '</div><div class="shr-sub">Tap to edit</div>';
 
         const dot = document.createElement('div');
         dot.className = 'shr-dot';
         dot.style.background = habit.color;
+        dot.style.pointerEvents = 'none';
 
         const arrow = document.createElement('div');
         arrow.className = 'shr-arrow';
-        arrow.textContent = '›';
+        arrow.textContent = '>';
+        arrow.style.pointerEvents = 'none';
 
         row.appendChild(iconDiv);
         row.appendChild(infoDiv);
@@ -1743,17 +1754,24 @@
         container.appendChild(row);
       });
 
-      /* Add new habit button */
+      // Add habit button
       const addBtn = document.createElement('button');
       addBtn.className = 'settings-add-btn';
-      addBtn.textContent = '＋ Add new habit';
-      addBtn.onclick = () => openEditSheet(null, true);
+      addBtn.textContent = '+ Add new habit';
+      addBtn.setAttribute('onclick', 'window._openEdit(-1)');
       container.appendChild(addBtn);
 
-      // Export data removed
+      // Global open function
+      window._openEdit = function(idx) {
+        if (idx === -1) {
+          openEditSheet(null, true);
+        } else {
+          openEditSheet(window._habits[idx], false);
+        }
+      };
     }
 
-    /* -- OPEN EDIT SHEET -- */
+        /* -- OPEN EDIT SHEET -- */
     /*
       Opens the bottom sheet for editing or adding a habit.
       habit = null when adding new.
