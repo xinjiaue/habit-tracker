@@ -421,7 +421,7 @@
     /* Edit habit overlay */
     #edit-overlay {
       position:fixed; inset:0; background:rgba(0,0,0,0.4);
-      z-index:900; display:none; align-items:flex-end;
+      z-index:9999; display:none; align-items:flex-end;
     }
     #edit-overlay.open { display:flex; }
     #edit-sheet {
@@ -563,7 +563,7 @@
   </nav>
 
   <!-- EDIT HABIT OVERLAY — slides up from bottom -->
-  <div id="edit-overlay" onclick="closeEditSheet(event)">
+  <div id="edit-overlay">
     <div id="edit-sheet">
       <div class="edit-sheet-handle"></div>
       <div class="edit-sheet-title" id="edit-title">Edit Habit</div>
@@ -1808,8 +1808,6 @@
 
     /* -- CLOSE EDIT SHEET -- */
     function closeEditSheet(event) {
-      // Close only if clicking outside the sheet
-      if (event && event.target !== document.getElementById('edit-overlay')) return;
       document.getElementById('edit-overlay').classList.remove('open');
       editingHabit = null;
     }
@@ -1948,6 +1946,12 @@
     }
 
     /* -- STARTUP -- */
+    // Close overlay when clicking the dark background
+    document.addEventListener('click', function(e) {
+      const overlay = document.getElementById('edit-overlay');
+      if (e.target === overlay) closeEditSheet();
+    });
+
     window.addEventListener('load', function() {
       // Hide loading screen immediately no matter what
       document.getElementById('loading-screen').style.display = 'none';
