@@ -1189,14 +1189,13 @@
       }
 
       // DURATION habits (exercise, finance, language, tech)
-      // Intensity by minutes studied/exercised
+      // Intensity by minutes: 30 / 60 / 90+ min
       const mins = v.duration || 0;
-      if (mins <= 0)   return habit.light;           // nothing
-      if (mins <= 20)  return habit.color + '44';    // 1-20 min very light
-      if (mins <= 40)  return habit.color + '77';    // 21-40 light
-      if (mins <= 60)  return habit.color + 'AA';    // 41-60 medium
-      if (mins <= 90)  return habit.color + 'DD';    // 61-90 dark
-      return habit.color;                             // 91+ darkest
+      if (mins <= 0)   return habit.light;           // nothing logged
+      if (mins <= 30)  return habit.color + '44';    // 1-30 min lightest
+      if (mins <= 60)  return habit.color + '88';    // 31-60 min medium
+      if (mins <= 90)  return habit.color + 'BB';    // 61-90 min dark
+      return habit.color;                             // 90+ min darkest
     }
 
     /* Get legend items for a habit */
@@ -1215,8 +1214,8 @@
         items.push({ color:habit.color+'99', label:'7-8h' });
         items.push({ color:habit.color,      label:'9h+' });
       } else {
-        items.push({ color:habit.color+'44', label:'15m' });
-        items.push({ color:habit.color+'99', label:'45m' });
+        items.push({ color:habit.color+'44', label:'30m' });
+        items.push({ color:habit.color+'88', label:'60m' });
         items.push({ color:habit.color,      label:'90m+' });
       }
       return items;
@@ -1716,15 +1715,35 @@
       habits.forEach((habit, idx) => {
         const row = document.createElement('div');
         row.className = 'settings-habit-row';
-        row.onclick = () => openEditSheet(habit, false);
-        row.innerHTML = `
-          <div class="shr-icon">${ICONS[habit.id] || ICONS['mood']}</div>
-          <div class="shr-info">
-            <div class="shr-name">${habit.name}</div>
-            <div class="shr-sub">Tap to edit</div>
-          </div>
-          <div class="shr-dot" style="background:${habit.color}"></div>
-          <div class="shr-arrow">›</div>`;
+        // Store habit id for click handler
+        row.dataset.habitIdx = idx;
+        row.addEventListener('click', function() {
+          const h = habits[parseInt(this.dataset.habitIdx)];
+          openEditSheet(h, false);
+        });
+
+        // Build row with DOM methods to avoid innerHTML SVG issues
+        const iconDiv = document.createElement('div');
+        iconDiv.className = 'shr-icon';
+        iconDiv.innerHTML = ICONS[habit.id] || ICONS['mood'];
+
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'shr-info';
+        infoDiv.innerHTML = '<div class="shr-name">' + habit.name + '</div>' +
+          '<div class="shr-sub">Tap to edit</div>';
+
+        const dot = document.createElement('div');
+        dot.className = 'shr-dot';
+        dot.style.background = habit.color;
+
+        const arrow = document.createElement('div');
+        arrow.className = 'shr-arrow';
+        arrow.textContent = '›';
+
+        row.appendChild(iconDiv);
+        row.appendChild(infoDiv);
+        row.appendChild(dot);
+        row.appendChild(arrow);
         container.appendChild(row);
       });
 
@@ -1735,24 +1754,7 @@
       addBtn.onclick = () => openEditSheet(null, true);
       container.appendChild(addBtn);
 
-      /* Data section */
-      const dataLbl = document.createElement('div');
-      dataLbl.className = 'section-label';
-      dataLbl.style.marginTop = '6px';
-      dataLbl.textContent = 'Data';
-      container.appendChild(dataLbl);
-
-      const exportRow = document.createElement('div');
-      exportRow.className = 'settings-habit-row';
-      exportRow.onclick = exportData;
-      exportRow.innerHTML = `
-        <div style="font-size:24px;width:36px;text-align:center">📤</div>
-        <div class="shr-info">
-          <div class="shr-name">Export data</div>
-          <div class="shr-sub">Download all entries as JSON</div>
-        </div>
-        <div class="shr-arrow">›</div>`;
-      container.appendChild(exportRow);
+      // Export data removed
     }
 
     /* -- OPEN EDIT SHEET -- */
