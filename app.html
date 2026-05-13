@@ -1711,18 +1711,14 @@
       lbl.textContent = 'Your habits';
       container.appendChild(lbl);
 
-      /* One row per habit */
+      /* One row per habit — store habits in window for onclick access */
+      window._settingsHabits = habits;
       habits.forEach((habit, idx) => {
         const row = document.createElement('div');
         row.className = 'settings-habit-row';
-        // Store habit id for click handler
-        row.dataset.habitIdx = idx;
-        row.addEventListener('click', function() {
-          const h = habits[parseInt(this.dataset.habitIdx)];
-          openEditSheet(h, false);
-        });
+        row.setAttribute('onclick', 'openEditSheet(window._settingsHabits[' + idx + '], false)');
+        row.style.cursor = 'pointer';
 
-        // Build row with DOM methods to avoid innerHTML SVG issues
         const iconDiv = document.createElement('div');
         iconDiv.className = 'shr-icon';
         iconDiv.innerHTML = ICONS[habit.id] || ICONS['mood'];
