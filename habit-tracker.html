@@ -686,8 +686,14 @@
 
     /* ── START APP ── */
     async function startApp() {
-      document.getElementById('loading-screen').style.display = 'flex';
+      // Show user info
       document.getElementById('user-pill').textContent = currentUser.name + ' · sign out';
+      // Show loading state inside today screen instead of full-screen loader
+      document.getElementById('today-cards').innerHTML =
+        '<div style="text-align:center;padding:48px 20px;color:var(--muted)">' +
+        '<div style="font-size:32px;margin-bottom:12px">⏳</div>' +
+        '<div style="font-size:14px;color:var(--text)">Connecting to database...</div>' +
+        '</div>';
       try {
         await apiPost('initHabits', {});
         const raw = await apiGet('getHabits');
@@ -707,13 +713,12 @@
         todayEntries = allEntries.filter(e => e.date === today);
         document.getElementById('tb-sub').textContent = formatDateNice(today);
         buildTodayScreen();
-        document.getElementById('loading-screen').style.display = 'none';
       } catch(err) {
         console.error(err);
-        document.getElementById('loading-screen').style.display = 'none';
         const b = document.getElementById('error-banner');
         b.style.display = 'block';
-        b.textContent   = '⚠️ Could not connect. Check your internet.';
+        b.textContent   = '⚠️ Could not connect. Make sure you are using phone hotspot, then refresh the page.';
+        document.getElementById('today-cards').innerHTML = '';
       }
     }
 
@@ -1951,13 +1956,20 @@
 
     /* ── STARTUP ── */
     window.addEventListener('load', function() {
+      // Hide loading screen immediately no matter what
+      document.getElementById('loading-screen').style.display = 'none';
+      
       const saved = sessionStorage.getItem('ht_user');
       if (saved) {
-        currentUser = JSON.parse(saved);
-        startApp();
+        try {
+          currentUser = JSON.parse(saved);
+          startApp();
+        } catch(e) {
+          sessionStorage.removeItem('ht_user');
+          document.getElementById('login-screen').style.display = 'flex';
+        }
       } else {
-        document.getElementById('loading-screen').style.display = 'none';
-        document.getElementById('login-screen').style.display   = 'flex';
+        document.getElementById('login-screen').style.display = 'flex';
       }
     });
   </script>
